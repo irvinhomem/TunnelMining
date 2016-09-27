@@ -57,7 +57,7 @@ class TunnelMiner(object):
     def do_plot(self):
         subplot_row_dim = 2 # 4
         subplot_col_dim = 3 # 3
-        # self.fig, self.ax = plt.subplot(subplot_row_dim, subplot_col_dim, figsize=(16, 9), dpi=90, facecolor='w')
+
         self.fig, self.ax = plt.subplots(subplot_row_dim, subplot_col_dim, figsize=(16, 9), dpi=90, facecolor='w')
 
         # yVariable = []
@@ -65,22 +65,13 @@ class TunnelMiner(object):
         #
         for counter, single_var in enumerate(self.all_json_data_list):
             # plt.plot(single_var['props'][1]['values'], marker="+", linestyle="none")
-
-            # self.ax.plot(single_var['props'][1]['values'], marker="+", linestyle="none")
             row_coord = 0 # 1
             col_coord = 0 # 1
-            self.ax[row_coord, col_coord].plot(single_var['props'][1]['values'], marker="+", linestyle="none")
+            self.ax[row_coord, col_coord].plot(single_var['props'][0]['values'], marker="+", linestyle="none")
             plotTitle = single_var['protocol'] + ' || ' + single_var['props'][1]['feature_name']
             self.ax[row_coord, col_coord].set_title(plotTitle, size=8)
             self.ax[row_coord, col_coord].tick_params(axis='both', labelsize='7')
-        #     yVariable.append(single_var['props'][0]['values'])
-        #
-        #     row_coord = 1
-        #     col_coord = 1
-        #     self.ax[row_coord, col_coord].plot(yVariable[counter], marker="+", markeredgecolor=markercolor,
-        #                                    linestyle="solid", color="blue")
 
-        # plt.show()
         self.fig.tight_layout()
         self.fig.show()
         self.fig.waitforbuttonpress(timeout=-1)
