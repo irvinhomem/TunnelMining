@@ -35,6 +35,7 @@ selected_file_path = filedialog.askopenfilenames(**file_opts)
 logger.debug("JSON file path: %s" % str(selected_file_path))        # <--- List
 logger.debug("JSON file path: %s" % str(selected_file_path[0]))     # <--- Item in list
 
+# Selecting just the data from a single file
 with open(selected_file_path[0]) as json_data_file:
     data = json.load(json_data_file)
     logger.debug("Filename: %s" % data['filename'])
@@ -42,3 +43,4 @@ with open(selected_file_path[0]) as json_data_file:
     logger.debug("1st Feature 1st Value: %s" % data['props'][0]['values'][0])
     logger.debug("2nd Feature name: %s" % data['props'][1]['feature_name'])
     logger.debug("2nd Feature 1st Value: %s" % data['props'][1]['values'][0])
+
