@@ -80,7 +80,7 @@ class TunnelMiner(object):
         self.logger.debug("Number of Columns: %i" % subplot_col_dim)
 
         self.fig, self.ax = plt.subplots(nrows=subplot_row_dim, ncols=subplot_col_dim,
-                                         figsize=(16, 9), dpi=140, facecolor='w', squeeze=0)
+                                         figsize=(16, 9), dpi=90, facecolor='w', squeeze=0)    #dpi=90 or dpi=140 (90 works best)
         # The "squeeze=0" parameter is important in order to ensure that
         # when the rows==1 or cols==1, it still creates a 2-Dimensional array.
         # Without the parameter a 1-D array will be created, making the self.ax[row, col].plot code below fail
@@ -122,7 +122,12 @@ class TunnelMiner(object):
                 self.ax[row_coord, col_coord].set_title(plotTitle, size=8)
                 self.ax[row_coord, col_coord].tick_params(axis='both', labelsize='7')
 
+            self.fig.suptitle(single_pcap_json['protocol'], size=16)
+
+        # self.fig.suptitle(single_pcap_json['protocol'], size=16)
+
         self.fig.tight_layout()
+        self.fig.subplots_adjust(top=0.92)
         self.fig.show()
         self.fig.waitforbuttonpress(timeout=-1)
 
