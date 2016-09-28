@@ -31,6 +31,7 @@ class TunnelMiner(object):
 
         # self.proto_Label = ""
         # self.feature_Label = ""
+        self.all_json_data_list = []
 
         self.fig = None
         self.ax = None
@@ -49,7 +50,7 @@ class TunnelMiner(object):
         # self.proto_Label = proto_lbl
         # self.feature_Label = feature_lbl
 
-        self.all_json_data_list = []
+        #
         for single_file in file_list:
             abs_file_path = os.path.join(selected_dir, single_file)
             self.logger.debug("Curr file path: %s" % abs_file_path)
