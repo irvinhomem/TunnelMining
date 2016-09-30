@@ -85,7 +85,10 @@ class TunnelMiner(object):
                 self.logger.debug("Json Data Feature Name: %s" % str(single_pcap_json['props'][feat_num]['feature_name']))
                 if single_pcap_json['props'][feat_num]['feature_name'] in ["DNS-Req-Qnames-Enc-Comp-Hex",
                                                                            "HTTP-Req-Bytes-Hex",
-                                                                           "FTP-Req-Bytes-Hex"]:
+                                                                           "FTP-Req-Bytes-Hex",
+                                                                           "HTTP-S-Req-Bytes-Hex",
+                                                                           "POP3-Req-Bytes-Hex"
+                                                                           ]:
                     for x, hex_str_item in enumerate(single_pcap_json['props'][feat_num]['values']):
                         # chunked_list = re.findall('..', hex_str_item)
 
