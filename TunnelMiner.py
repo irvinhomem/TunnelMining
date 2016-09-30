@@ -75,6 +75,35 @@ class TunnelMiner(object):
             h += prob * math.log((1/prob),2)
         return h
 
+    def get_list_of_Entropy_lists(self):
+        all_pcap_entropy_lists = []
+        for counter, single_pcap_json in enumerate(self.all_json_data_list):
+            single_pcap_entropy_list = []
+            for feat_num, feature in enumerate(single_pcap_json['props']):
+                self.logger.debug("Json Number of features: %s" % len(single_pcap_json['props']))
+                self.logger.debug("Json features: %s" % len(single_pcap_json['props'][feat_num]))
+                self.logger.debug("Json Data Feature Name: %s" % str(single_pcap_json['props'][feat_num]['feature_name']))
+                if single_pcap_json['props'][feat_num]['feature_name'] in ["DNS-Req-Qnames-Enc-Comp-Hex",
+                                                                           "HTTP-Req-Bytes-Hex",
+                                                                           "FTP-Req-Bytes-Hex"]:
+                    for x, hex_str_item in enumerate(single_pcap_json['props'][feat_num]['values']):
+                        # chunked_list = re.findall('..', hex_str_item)
+
+                        encoded_str = b2a.unhexlify(hex_str_item.encode())
+                        if x == 0:
+                            # self.logger.debug("Length of 1st List: %i" % len(chunked_list))
+                            # self.logger.debug("Chunked list: %s" % str(chunked_list))
+                            # self.logger.debug("Counter on Chunked list: %s" % str(Counter(chunked_list)))
+                            self.logger.debug("HEX string item: %s" % hex_str_item)
+                            self.logger.debug("Encoded String: %s" % encoded_str)
+                        #entropy_list.append(calc_entropy(Counter(encoded_str)))
+                        single_pcap_entropy_list.append(self.calcEntropy(Counter(encoded_str)))
+                        # entropy_list.append(self.calcEntropy(Counter(chunked_list)))
+            self.logger.debug("Length of Single PCAP entropy list: %i" % len(single_pcap_entropy_list))
+            all_pcap_entropy_lists.append(single_pcap_entropy_list)
+            self.logger.debug("Length of ALL entropy list: %i" % len(all_pcap_entropy_lists))
+        return all_pcap_entropy_lists
+
     def do_plot(self):
         subplot_row_dim = 1 # 2 # 4
         subplot_col_dim = len(self.all_json_data_list[0]['props']) # 3
@@ -152,6 +181,6 @@ class TunnelMiner(object):
 # https_TM.do_plot()
 
 # # POP3
-pop3TM = TunnelMiner()
-pop3TM.load_sub_dataset("POP3ovDNS-DL","All")
-pop3TM.do_plot()
+# pop3TM = TunnelMiner()
+# pop3TM.load_sub_dataset("POP3ovDNS-DL","All")
+# pop3TM.do_plot()
