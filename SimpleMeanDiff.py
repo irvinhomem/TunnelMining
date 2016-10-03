@@ -142,9 +142,9 @@ class SimpleMeanDiff(object):
             for count, http_sc_val in enumerate(http_score_list):
                 # print("UNRANKED:")
                 # print("----------------------------")
-                print("UNRANKED: HTTP: %.3f | FTP: %.3f | HTTP_S: %.3f | POP3: %.3f" %
-                      (float(http_sc_val), float(ftp_score_list[count]),
-                       float(http_s_score_list[count]), float(pop3_score_list[count])))
+                # print("UNRANKED: HTTP: %.3f | FTP: %.3f | HTTP_S: %.3f | POP3: %.3f" %
+                #       (float(http_sc_val), float(ftp_score_list[count]),
+                #        float(http_s_score_list[count]), float(pop3_score_list[count])))
 
                 # # METHOD 1 : Choosing which is the smallest value
                 # # -----------------------------------------------
@@ -255,10 +255,10 @@ class SimpleMeanDiff(object):
         return multiSampleSeq
 
 
-mean_diff_tester = SimpleMeanDiff("FTPovDNS-DL")
+# mean_diff_tester = SimpleMeanDiff("FTPovDNS-DL")
 # mean_diff_tester = SimpleMeanDiff("HTTPovDNS-Static")
 # mean_diff_tester = SimpleMeanDiff("HTTP-S-ovDNS-Static")
-# mean_diff_tester = SimpleMeanDiff("POP3ovDNS-DL")
+mean_diff_tester = SimpleMeanDiff("POP3ovDNS-DL")
 
 
 the_predictions = mean_diff_tester.get_Mean_Diff_Avg_Score_n_predict()
