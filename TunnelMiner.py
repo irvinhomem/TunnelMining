@@ -8,6 +8,7 @@ import binascii as b2a
 import re
 from collections import Counter
 import math
+import numpy as np
 
 import logging
 
@@ -122,7 +123,7 @@ class TunnelMiner(object):
 
         yVariable = []
         txtbox_params = dict(boxstyle='round', facecolor='wheat', alpha=0.6)
-        #
+        avg_of_each_pcap =[]
         for counter, single_pcap_json in enumerate(self.all_json_data_list):
             # plt.plot(single_pcap_json['props'][1]['values'], marker="+", linestyle="none")
             for feat_num, feature in enumerate(single_pcap_json['props']):
@@ -144,7 +145,11 @@ class TunnelMiner(object):
                         #temp_y_var.append(calc_entropy(Counter(encoded_str)))
                         temp_y_var.append(self.calcEntropy(Counter(encoded_str)))
                         # temp_y_var.append(self.calcEntropy(Counter(chunked_list)))
+                    # # Plot all entropies
                     yVariable = temp_y_var
+                    # # Plot average entropy per pcap
+                    yVariable_avg = np.average(temp_y_var)
+                    avg_of_each_pcap.append(yVariable_avg)
                     # yVariable = [12,34,45]
                 else:
                     yVariable = single_pcap_json['props'][feat_num]['values']
@@ -158,6 +163,8 @@ class TunnelMiner(object):
             self.fig.suptitle(single_pcap_json['protocol'], size=16)
 
         # self.fig.suptitle(single_pcap_json['protocol'], size=16)
+        avg_of_ALL_pcaps = np.average(avg_of_each_pcap)
+        self.logger.debug("Average for ALL pcaps in THIS set: %.4f" % avg_of_ALL_pcaps)
 
         self.fig.tight_layout()
         self.fig.subplots_adjust(top=0.92)
