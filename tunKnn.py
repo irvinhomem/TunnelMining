@@ -2,7 +2,9 @@
 import logging
 from TunnelMiner import TunnelMiner
 import random
-import binascii as b2a
+# import binascii as b2a
+import numpy as np
+from collections import OrderedDict
 
 
 class tunKnn(object):
@@ -34,15 +36,15 @@ class tunKnn(object):
             # self.ftp_data.load_sub_dataset("ftp-ovDNS-test-old", "All")
             self.all_test_data.append(self.ftp_data)
 
-        if self.test_dataset_label in ["HTTP-S-ovDNS-Static", "Compare-All"]:
-            self.http_s_data = TunnelMiner()
-            self.http_s_data.load_sub_dataset("HTTP-S-ovDNS-Static", "All")
-            self.all_test_data.append(self.http_s_data)
-
-        if self.test_dataset_label in ["POP3ovDNS-DL", "Compare-All"]:
-            self.pop3_data = TunnelMiner()
-            self.pop3_data.load_sub_dataset("POP3ovDNS-DL", "All")
-            self.all_test_data.append(self.pop3_data)
+        # if self.test_dataset_label in ["HTTP-S-ovDNS-Static", "Compare-All"]:
+        #     self.http_s_data = TunnelMiner()
+        #     self.http_s_data.load_sub_dataset("HTTP-S-ovDNS-Static", "All")
+        #     self.all_test_data.append(self.http_s_data)
+        #
+        # if self.test_dataset_label in ["POP3ovDNS-DL", "Compare-All"]:
+        #     self.pop3_data = TunnelMiner()
+        #     self.pop3_data.load_sub_dataset("POP3ovDNS-DL", "All")
+        #     self.all_test_data.append(self.pop3_data)
 
     def select_single_test_pcap(self, specific_label):
         for count, labeled_dataset in enumerate(self.all_test_data):
@@ -56,33 +58,34 @@ class tunKnn(object):
 
     def get_k_nearest_neighbours(self, k):
         single_pcap_entropy_list = self.selected_pcap_json_obj.get_single_pcap_json_feature_entropy()
+        avg_of_selected_obj = np.average(single_pcap_entropy_list)
+        self.logger.debug("Average Entropy of Selected Test Object: %.3f" % avg_of_selected_obj)
+        # Create an ORDERED dictionary of size k
+        # least_diff = dict.fromkeys((range(k)))
+        least_diff = OrderedDict.fromkeys(range(k))
 
-    # def get_single_pcap_json_feature_entropy(self, pcap_json_item):
-    #     single_pcap_entropy_list = []
-    #     for feat_num, feature in enumerate(pcap_json_item['props']):
-    #         self.logger.debug("Json Number of features: %s" % len(pcap_json_item['props']))
-    #         self.logger.debug("Json features: %s" % len(pcap_json_item['props'][feat_num]))
-    #         self.logger.debug("Json Data Feature Name: %s" % str(pcap_json_item['props'][feat_num]['feature_name']))
-    #         if pcap_json_item['props'][feat_num]['feature_name'] in ["DNS-Req-Qnames-Enc-Comp-Hex",
-    #                                                                    "HTTP-Req-Bytes-Hex",
-    #                                                                    "FTP-Req-Bytes-Hex",
-    #                                                                    "HTTP-S-Req-Bytes-Hex",
-    #                                                                    "POP3-Req-Bytes-Hex"]:
-    #             for x, hex_str_item in enumerate(pcap_json_item['props'][feat_num]['values']):
-    #                 # chunked_list = re.findall('..', hex_str_item)
-    #
-    #                 encoded_str = b2a.unhexlify(hex_str_item.encode())
-    #                 if x == 0:
-    #                     # self.logger.debug("Length of 1st List: %i" % len(chunked_list))
-    #                     # self.logger.debug("Chunked list: %s" % str(chunked_list))
-    #                     # self.logger.debug("Counter on Chunked list: %s" % str(Counter(chunked_list)))
-    #                     self.logger.debug("HEX string item: %s" % hex_str_item)
-    #                     self.logger.debug("Encoded String: %s" % encoded_str)
-    #                 # entropy_list.append(calc_entropy(Counter(encoded_str)))
-    #                 single_pcap_entropy_list.append(self.calcEntropy(Counter(encoded_str)))
-    #                 # entropy_list.append(self.calcEntropy(Counter(chunked_list)))
-    #                 self.logger.debug("Length of Single PCAP entropy list: %i" % len(single_pcap_entropy_list))
-    #     return single_pcap_entropy_list
+        curr_least_diff = 100.0
+        for count, pcap_group in enumerate(self.all_test_data):
+            for idx, pcap_json_item in enumerate(pcap_group.all_json_data_list):
+                pcap_entropy_list = pcap_json_item.get_single_pcap_json_feature_entropy()
+                self.logger.debug("Entropy List length: %i" % len(pcap_entropy_list))
+                entropy_avg = np.average(pcap_entropy_list)
+                self.logger.debug("Avg Entropy of Current ...in loop: %.3f" % avg_of_selected_obj)
+                diff = abs(avg_of_selected_obj - entropy_avg)
+                self.logger.debug("Avg Entropy Difference : %.3f" % diff)
+                if diff < curr_least_diff:
+                    curr_least_diff = diff
+                    self.logger.debug("Current Min: %.3f" % curr_least_diff)
+                # if diff < max(least_diff, key=least_diff.get):
+                #     self.logger.debug("Current Min: %.3f" % diff)
+                #     least_diff.update(str(round(curr_least_diff, 3)))
+                    # least_diff.move_to_end(diff, last=False)
+
+        print("Final Least Diff: %.3f" % curr_least_diff)
+        print(least_diff)
+
+
+
 
 knn_test = tunKnn("Compare-All")
 # knn_test.select_single_test_pcap("HTTPovDNS-Static")
