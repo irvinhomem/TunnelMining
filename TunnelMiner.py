@@ -29,7 +29,7 @@ class TunnelMiner(object):
         self.json_abs_base_path = os.path.join(os.path.realpath(os.path.join(os.getcwd(), os.pardir)), self.json_base_path)
         self.logger.debug("JSON file path: %s" % str(self.json_abs_base_path))
 
-        # self.proto_Label = ""
+        self.proto_Label = ""
         # self.feature_Label = ""
         self.all_json_data_list = []
 
@@ -47,7 +47,7 @@ class TunnelMiner(object):
         self.logger.debug("File number in dir: %i" % len(file_list))
         self.logger.debug("1st File: %s" % str(file_list[0]))
 
-        # self.proto_Label = proto_lbl
+        self.proto_Label = proto_lbl
         # self.feature_Label = feature_lbl
 
         #
@@ -59,7 +59,7 @@ class TunnelMiner(object):
                 self.all_json_data_list.append(data)
 
         self.logger.info("Length of Loaded list ||%s::%s|| List: %i" % (proto_lbl, feature_lbl, len(self.all_json_data_list)))
-        # return all_json_data_list
+        # return self.all_json_data_list
 
     def calcEntropy(self, myFreqDict):
         '''
