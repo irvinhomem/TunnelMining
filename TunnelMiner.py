@@ -12,7 +12,6 @@ import numpy as np
 
 import logging
 
-
 class TunnelMiner(object):
 
     def __init__(self):
