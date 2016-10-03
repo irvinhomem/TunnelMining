@@ -25,14 +25,14 @@ class SimpleMeanDiff(object):
             self.test_dataset.load_sub_dataset("HTTPovDNS-Static", "All")
             # self.http_data.load_sub_dataset("http-ovDNS-test2", "All")
 
-        elif self.test_dataset_label == "FTPovDNS-DL":
+        if self.test_dataset_label == "FTPovDNS-DL":
             self.test_dataset.load_sub_dataset("FTPovDNS-DL", "All")
             # self.ftp_data.load_sub_dataset("ftp-ovDNS-test-old", "All")
 
-        elif self.test_dataset_label == "HTTP-S-ovDNS-Static":
+        if self.test_dataset_label == "HTTP-S-ovDNS-Static":
             self.test_dataset.load_sub_dataset("HTTP-S-ovDNS-Static", "All")
 
-        elif self.test_dataset_label == "POP3ovDNS-DL":
+        if self.test_dataset_label == "POP3ovDNS-DL":
             self.test_dataset.load_sub_dataset("POP3ovDNS-DL", "All")
 
         # Load the ground truth values -----------------------------
@@ -255,10 +255,10 @@ class SimpleMeanDiff(object):
         return multiSampleSeq
 
 
-# mean_diff_tester = SimpleMeanDiff("FTPovDNS-DL")
+mean_diff_tester = SimpleMeanDiff("FTPovDNS-DL")
 # mean_diff_tester = SimpleMeanDiff("HTTPovDNS-Static")
 # mean_diff_tester = SimpleMeanDiff("HTTP-S-ovDNS-Static")
-mean_diff_tester = SimpleMeanDiff("POP3ovDNS-DL")
+# mean_diff_tester = SimpleMeanDiff("POP3ovDNS-DL")
 
 
 the_predictions = mean_diff_tester.get_Mean_Diff_Avg_Score_n_predict()
