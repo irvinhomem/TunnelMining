@@ -63,25 +63,30 @@ class tunKnn(object):
         # Create an ORDERED dictionary of size k
         # least_diff = dict.fromkeys((range(k)))
         least_diff = OrderedDict.fromkeys(range(k))
+        neighbour_proto_lbls = OrderedDict.fromkeys(range(k))
 
-        curr_least_diff = 100.0
+        curr_least_diff = 10.0
         for count, pcap_group in enumerate(self.all_test_data):
             for idx, pcap_json_item in enumerate(pcap_group.all_json_data_list):
+                if self.selected_pcap_json_obj.single_json_object_data['filename'] == pcap_json_item.single_json_object_data['filename']:
+                    self.logger.debug("HIT CONTINUE ... to skip the chosen PCAP that is still in the list")
+                    continue
                 pcap_entropy_list = pcap_json_item.get_single_pcap_json_feature_entropy()
                 self.logger.debug("Entropy List length: %i" % len(pcap_entropy_list))
                 entropy_avg = np.average(pcap_entropy_list)
-                self.logger.debug("Avg Entropy of Current ...in loop: %.3f" % avg_of_selected_obj)
+                self.logger.debug("Avg Entropy of Current ...in loop: %.8f" % avg_of_selected_obj)
                 diff = abs(avg_of_selected_obj - entropy_avg)
-                self.logger.debug("Avg Entropy Difference : %.3f" % diff)
+                self.logger.debug("Avg Entropy Difference : %.8f" % diff)
                 if diff < curr_least_diff:
                     curr_least_diff = diff
-                    self.logger.debug("Current Min: %.3f" % curr_least_diff)
+                    self.logger.debug("Current Min: %.8f" % curr_least_diff)
                 # if diff < max(least_diff, key=least_diff.get):
                 #     self.logger.debug("Current Min: %.3f" % diff)
-                #     least_diff.update(str(round(curr_least_diff, 3)))
+                    least_diff.update({len(least_diff)-1: curr_least_diff})
+                    neighbour_proto_lbls.update({len(least_diff)-1: curr_least_diff})
                     # least_diff.move_to_end(diff, last=False)
 
-        print("Final Least Diff: %.3f" % curr_least_diff)
+        print("Final Least Diff: %.8f" % curr_least_diff)
         print(least_diff)
 
 
