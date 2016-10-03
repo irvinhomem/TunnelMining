@@ -8,7 +8,7 @@ from collections import Counter
 
 class SimpleMeanDiff(object):
 
-    def __init__(self):
+    def __init__(self, test_data_lbl):
         # Configure Logging
         logging.basicConfig(level=logging.INFO)
         # logging.basicConfig(level=logging.WARNING)
@@ -18,20 +18,27 @@ class SimpleMeanDiff(object):
         # self.logger.setLevel(logging.WARNING)
 
         # Load the test data sets ----------------------------------
-        self.http_data = TunnelMiner()
-        self.http_data.load_sub_dataset("HTTPovDNS-Static", "All")
-        # self.http_data.load_sub_dataset("http-ovDNS-test2", "All")
-
-        self.ftp_data = TunnelMiner()
-        # self.ftp_data.load_sub_dataset("FTPovDNS-UL","All")
-        self.ftp_data.load_sub_dataset("FTPovDNS-DL","All")
-        # self.ftp_data.load_sub_dataset("ftp-ovDNS-test-old", "All")
-
-        self.http_s_data = TunnelMiner()
-        self.http_s_data.load_sub_dataset("HTTP-S-ovDNS-Static", "All")
-
-        self.pop3_data = TunnelMiner()
-        self.pop3_data.load_sub_dataset("POP3ovDNS-DL", "All")
+        self.test_dataset_label = test_data_lbl
+        self.test_dataset = TunnelMiner()
+        if self.test_dataset_label == "HTTPovDNS-Static":
+            # self.http_data = TunnelMiner()
+            # self.http_data.load_sub_dataset("HTTPovDNS-Static", "All")
+            self.test_dataset.load_sub_dataset("HTTPovDNS-Static", "All")
+            # self.http_data.load_sub_dataset("http-ovDNS-test2", "All")
+        elif self.test_dataset_label == "FTPovDNS-DL":
+            # self.ftp_data = TunnelMiner()
+            # self.ftp_data.load_sub_dataset("FTPovDNS-UL","All")
+            # self.ftp_data.load_sub_dataset("FTPovDNS-DL","All")
+            self.test_dataset.load_sub_dataset("FTPovDNS-DL", "All")
+            # self.ftp_data.load_sub_dataset("ftp-ovDNS-test-old", "All")
+        elif self.test_dataset_label == "HTTP-S-ovDNS-Static":
+            # self.http_s_data = TunnelMiner()
+            # self.http_s_data.load_sub_dataset("HTTP-S-ovDNS-Static", "All")
+            self.test_dataset.load_sub_dataset("HTTP-S-ovDNS-Static", "All")
+        elif self.test_dataset_label == "POP3ovDNS-DL":
+            # self.pop3_data = TunnelMiner()
+            # self.pop3_data.load_sub_dataset("POP3ovDNS-DL", "All")
+            self.test_dataset.load_sub_dataset("POP3ovDNS-DL", "All")
 
 
         # Load the ground truth values -----------------------------
@@ -69,14 +76,22 @@ class SimpleMeanDiff(object):
         return meanDiff
 
     def get_Mean_Diff_Avg_Score_n_predict(self):
+
+        # test_dataset = None
+        # if test_dataset_label == "ftp":
+        #     test_dataset = self.ftp_data.get_list_of_Entropy_lists()
+        # elif test_dataset_label == "http":
+        #     test_dataset = self.http_data.get_list_of_Entropy_lists()
+        # elif test_dataset_label == "http_s":
+        #     test_dataset = self.http_s_data.get_list_of_Entropy_lists()
+        # elif test_dataset_label == "pop3":
+        #     test_dataset = self.pop3_data.get_list_of_Entropy_lists()
+
         predictions = []
         # Compare AGAINST http
         against_http_score = []
         # # Change the variable here depending on whether it is the HTTP dataset being tested or the FTP dataset
-        for single_pcap_entropy_list in self.ftp_data.get_list_of_Entropy_lists():
-        # for single_pcap_entropy_list in self.http_data.get_list_of_Entropy_lists():
-        # for single_pcap_entropy_list in self.http_s_data.get_list_of_Entropy_lists():
-        # for single_pcap_entropy_list in self.pop3_data.get_list_of_Entropy_lists():
+        for single_pcap_entropy_list in self.test_dataset.get_list_of_Entropy_lists():
             self.logger.debug("In 'get_Mean_Diff_Avg_Score_n_predict' ...")
             self.logger.debug("Length of Single PCAP list of entropies: %i" % len(single_pcap_entropy_list))
 
@@ -88,10 +103,7 @@ class SimpleMeanDiff(object):
         # Compare AGAINST ftp
         against_ftp_score = []
         # # Change also HERE
-        for single_pcap_entropy_list in self.ftp_data.get_list_of_Entropy_lists():
-        # for single_pcap_entropy_list in self.http_data.get_list_of_Entropy_lists():
-        # for single_pcap_entropy_list in self.http_s_data.get_list_of_Entropy_lists():
-        # for single_pcap_entropy_list in self.pop3_data.get_list_of_Entropy_lists():
+        for single_pcap_entropy_list in self.test_dataset.get_list_of_Entropy_lists():
             grndTruth_list_of_lists_ftp = self.ftp_ground.get_list_of_Entropy_lists()
             self.logger.debug("Length of FTP Ground-Truth List of lists: --> %i" % len(grndTruth_list_of_lists_ftp))
             self.logger.debug("Length of FTP Ground-Truth List within List: --> %i" % len(grndTruth_list_of_lists_ftp[0]))
@@ -100,10 +112,7 @@ class SimpleMeanDiff(object):
         # Compare AGAINST http-s
         against_http_s_score = []
         # # Change also HERE
-        for single_pcap_entropy_list in self.ftp_data.get_list_of_Entropy_lists():
-        # for single_pcap_entropy_list in self.http_data.get_list_of_Entropy_lists():
-        # for single_pcap_entropy_list in self.http_s_data.get_list_of_Entropy_lists():
-        # for single_pcap_entropy_list in self.pop3_data.get_list_of_Entropy_lists():
+        for single_pcap_entropy_list in self.test_dataset.get_list_of_Entropy_lists():
             grndTruth_list_of_lists_http_s = self.http_s_ground.get_list_of_Entropy_lists()
             self.logger.debug("Length of HTTP-S Ground-Truth List of lists: --> %i" % len(grndTruth_list_of_lists_http_s))
             self.logger.debug(
@@ -113,10 +122,7 @@ class SimpleMeanDiff(object):
         # Compare AGAINST pop3
         against_pop3_score = []
         # # Change also HERE
-        for single_pcap_entropy_list in self.ftp_data.get_list_of_Entropy_lists():
-        # for single_pcap_entropy_list in self.http_data.get_list_of_Entropy_lists():
-        # for single_pcap_entropy_list in self.http_s_data.get_list_of_Entropy_lists():
-        # for single_pcap_entropy_list in self.pop3_data.get_list_of_Entropy_lists():
+        for single_pcap_entropy_list in self.test_dataset.get_list_of_Entropy_lists():
             grndTruth_list_of_lists_pop3 = self.pop3_ground.get_list_of_Entropy_lists()
             self.logger.debug("Length of POP3 Ground-Truth List of lists: --> %i" %
                               len(grndTruth_list_of_lists_pop3))
@@ -232,7 +238,18 @@ class SimpleMeanDiff(object):
         return multiSampleSeq
 
 
-http_vs_ftp = SimpleMeanDiff()
-the_predictions = http_vs_ftp.get_Mean_Diff_Avg_Score_n_predict()
+# mean_diff_tester = SimpleMeanDiff("FTPovDNS-DL")
+# mean_diff_tester = SimpleMeanDiff("HTTPovDNS-Static")
+# mean_diff_tester = SimpleMeanDiff("HTTP-S-ovDNS-Static")
+mean_diff_tester = SimpleMeanDiff("POP3ovDNS-DL")
+
+
+the_predictions = mean_diff_tester.get_Mean_Diff_Avg_Score_n_predict()
+
+# the_predictions = mean_diff_tester.get_Mean_Diff_Avg_Score_n_predict('ftp')
+# the_predictions = mean_diff_tester.get_Mean_Diff_Avg_Score_n_predict('http')
+# the_predictions = mean_diff_tester.get_Mean_Diff_Avg_Score_n_predict('http_s')
+# the_predictions = mean_diff_tester.get_Mean_Diff_Avg_Score_n_predict('pop3')
+
 print(the_predictions)
 print(Counter(the_predictions))
