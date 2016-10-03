@@ -5,6 +5,7 @@ import math
 import numpy as np
 import random
 from collections import Counter
+from collections import OrderedDict
 
 class SimpleMeanDiff(object):
 
@@ -21,25 +22,18 @@ class SimpleMeanDiff(object):
         self.test_dataset_label = test_data_lbl
         self.test_dataset = TunnelMiner()
         if self.test_dataset_label == "HTTPovDNS-Static":
-            # self.http_data = TunnelMiner()
-            # self.http_data.load_sub_dataset("HTTPovDNS-Static", "All")
             self.test_dataset.load_sub_dataset("HTTPovDNS-Static", "All")
             # self.http_data.load_sub_dataset("http-ovDNS-test2", "All")
+
         elif self.test_dataset_label == "FTPovDNS-DL":
-            # self.ftp_data = TunnelMiner()
-            # self.ftp_data.load_sub_dataset("FTPovDNS-UL","All")
-            # self.ftp_data.load_sub_dataset("FTPovDNS-DL","All")
             self.test_dataset.load_sub_dataset("FTPovDNS-DL", "All")
             # self.ftp_data.load_sub_dataset("ftp-ovDNS-test-old", "All")
-        elif self.test_dataset_label == "HTTP-S-ovDNS-Static":
-            # self.http_s_data = TunnelMiner()
-            # self.http_s_data.load_sub_dataset("HTTP-S-ovDNS-Static", "All")
-            self.test_dataset.load_sub_dataset("HTTP-S-ovDNS-Static", "All")
-        elif self.test_dataset_label == "POP3ovDNS-DL":
-            # self.pop3_data = TunnelMiner()
-            # self.pop3_data.load_sub_dataset("POP3ovDNS-DL", "All")
-            self.test_dataset.load_sub_dataset("POP3ovDNS-DL", "All")
 
+        elif self.test_dataset_label == "HTTP-S-ovDNS-Static":
+            self.test_dataset.load_sub_dataset("HTTP-S-ovDNS-Static", "All")
+
+        elif self.test_dataset_label == "POP3ovDNS-DL":
+            self.test_dataset.load_sub_dataset("POP3ovDNS-DL", "All")
 
         # Load the ground truth values -----------------------------
         self.http_ground = TunnelMiner()
@@ -76,16 +70,6 @@ class SimpleMeanDiff(object):
         return meanDiff
 
     def get_Mean_Diff_Avg_Score_n_predict(self):
-
-        # test_dataset = None
-        # if test_dataset_label == "ftp":
-        #     test_dataset = self.ftp_data.get_list_of_Entropy_lists()
-        # elif test_dataset_label == "http":
-        #     test_dataset = self.http_data.get_list_of_Entropy_lists()
-        # elif test_dataset_label == "http_s":
-        #     test_dataset = self.http_s_data.get_list_of_Entropy_lists()
-        # elif test_dataset_label == "pop3":
-        #     test_dataset = self.pop3_data.get_list_of_Entropy_lists()
 
         predictions = []
         # Compare AGAINST http
@@ -156,19 +140,52 @@ class SimpleMeanDiff(object):
         prediction_list = []
         if len(http_score_list) == len(ftp_score_list) and len(http_s_score_list) == len(pop3_score_list):
             for count, http_sc_val in enumerate(http_score_list):
-                print("HTTP: %.3f | FTP: %.3f | HTTP_S: %.3f | POP3: %.3f" %
+                # print("UNRANKED:")
+                # print("----------------------------")
+                print("UNRANKED: HTTP: %.3f | FTP: %.3f | HTTP_S: %.3f | POP3: %.3f" %
                       (float(http_sc_val), float(ftp_score_list[count]),
                        float(http_s_score_list[count]), float(pop3_score_list[count])))
-                if float(http_sc_val) < float(ftp_score_list[count] and
-                                                              float(http_sc_val) < float(http_s_score_list[count]) and
-                                                              float(http_sc_val) < float(pop3_score_list[count])):
-                    prediction_list.append("HTTP")
-                elif float(ftp_score_list[count]) < float(http_s_score_list[count]) and float(pop3_score_list[count]):
-                    prediction_list.append("FTP")
-                elif float(http_s_score_list[count]) < float(pop3_score_list[count]):
-                    prediction_list.append("HTTPS")
-                else:
-                    prediction_list.append("POP3")
+
+                # # METHOD 1 : Choosing which is the smallest value
+                # # -----------------------------------------------
+                # if float(http_sc_val) < float(ftp_score_list[count] and
+                #                                               float(http_sc_val) < float(http_s_score_list[count]) and
+                #                                               float(http_sc_val) < float(pop3_score_list[count])):
+                #     prediction_list.append("HTTP")
+                # elif float(ftp_score_list[count]) < float(http_s_score_list[count]) and float(pop3_score_list[count]):
+                #     prediction_list.append("FTP")
+                # elif float(http_s_score_list[count]) < float(pop3_score_list[count]):
+                #     prediction_list.append("HTTPS")
+                # else:
+                #     prediction_list.append("POP3")
+
+                # # METHOD 2 : Choosing the smallest value
+                # # ------------------------------------------------
+                # indexed_score_list = [http_sc_val, ftp_score_list[count], http_s_score_list[count], pop3_score_list[count]]
+                # lowest_index = indexed_score_list.index(min(indexed_score_list))
+                # if lowest_index == 0: # HTTP
+                #     prediction_list.append("HTTP")
+                # elif lowest_index == 1: # FTP
+                #     prediction_list.append("FTP")
+                # elif lowest_index == 2: # HTTP_S
+                #     prediction_list.append("HTTPS")
+                # elif lowest_index == 3: # POP3
+                #     prediction_list.append("POP3")
+
+                # # "METHOD 3" : Ranking all values and choosing the smallest value through the min function
+                # # ----------------------------------------------------
+                # ordered_score_dict = OrderedDict([('http', http_sc_val),
+                #                                   ('ftp',ftp_score_list[count]),
+                #                                   ('https', http_s_score_list[count]),
+                #                                   ('pop3', pop3_score_list[count])])
+                score_dict = {'HTTP': float('%.3f'%(http_sc_val)), 'FTP': float('%.3f'%(ftp_score_list[count])),
+                              'HTTPS': float('%.3f'%(http_s_score_list[count])), 'POP3': float('%.3f'%(pop3_score_list[count]))}
+                prediction_list.append(min(score_dict, key=score_dict.get))
+
+                ranked_score_dict = OrderedDict(sorted(score_dict.items(), key=lambda t: t[1]))
+
+                print("RANKED: %s" % ranked_score_dict)
+
         else:
             self.logger.debug("Something wrong with length of score lists")
             self.logger.debug("HTTP Score list len: %i" % len(http_score_list))
@@ -238,10 +255,10 @@ class SimpleMeanDiff(object):
         return multiSampleSeq
 
 
-# mean_diff_tester = SimpleMeanDiff("FTPovDNS-DL")
+mean_diff_tester = SimpleMeanDiff("FTPovDNS-DL")
 # mean_diff_tester = SimpleMeanDiff("HTTPovDNS-Static")
 # mean_diff_tester = SimpleMeanDiff("HTTP-S-ovDNS-Static")
-mean_diff_tester = SimpleMeanDiff("POP3ovDNS-DL")
+# mean_diff_tester = SimpleMeanDiff("POP3ovDNS-DL")
 
 
 the_predictions = mean_diff_tester.get_Mean_Diff_Avg_Score_n_predict()
