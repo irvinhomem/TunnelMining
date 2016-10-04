@@ -27,31 +27,31 @@ class tunKnn(object):
         if self.test_dataset_label in ["HTTPovDNS-Static", "Compare-All"]:
             self.http_data = TunnelMiner()
             # self.http_data.load_sub_dataset("HTTPovDNS-Static", "All")   # <--- Full HTTPovDNS-static Data set
-            self.http_data.load_sub_dataset("HTTPovDNS-Static-TEST", "All")
-            # self.http_data.load_sub_dataset("HTTPovDNS-Static-TEST-20", "All")
+            # self.http_data.load_sub_dataset("HTTPovDNS-Static-TEST", "All")
+            self.http_data.load_sub_dataset("HTTPovDNS-Static-TEST-20", "All")
             # self.http_data.load_sub_dataset("http-ovDNS-test2", "All")
             self.all_test_data.append(self.http_data)
 
         if self.test_dataset_label in ["FTPovDNS-DL", "Compare-All"]:
             self.ftp_data = TunnelMiner()
             # self.ftp_data.load_sub_dataset("FTPovDNS-DL", "All")          # <--- Full FTPovDNS Data set
-            self.ftp_data.load_sub_dataset("FTPovDNS-DL-TEST", "All")
-            # self.ftp_data.load_sub_dataset("FTPovDNS-DL-TEST-20", "All")
+            # self.ftp_data.load_sub_dataset("FTPovDNS-DL-TEST", "All")
+            self.ftp_data.load_sub_dataset("FTPovDNS-DL-TEST-20", "All")
             # self.ftp_data.load_sub_dataset("ftp-ovDNS-test-old", "All")
             self.all_test_data.append(self.ftp_data)
 
         if self.test_dataset_label in ["HTTP-S-ovDNS-Static", "Compare-All"]:
             self.http_s_data = TunnelMiner()
             # self.http_s_data.load_sub_dataset("HTTP-S-ovDNS-Static", "All")
-            self.http_s_data.load_sub_dataset("HTTP-S-ovDNS-Static-TEST", "All")
-            # self.http_s_data.load_sub_dataset("HTTP-S-ovDNS-Static-TEST-20", "All")
+            # self.http_s_data.load_sub_dataset("HTTP-S-ovDNS-Static-TEST", "All")
+            self.http_s_data.load_sub_dataset("HTTP-S-ovDNS-Static-TEST-20", "All")
             self.all_test_data.append(self.http_s_data)
 
         if self.test_dataset_label in ["POP3ovDNS-DL", "Compare-All"]:
             self.pop3_data = TunnelMiner()
             # self.pop3_data.load_sub_dataset("POP3ovDNS-DL", "All")
-            self.pop3_data.load_sub_dataset("POP3ovDNS-DL-TEST", "All")
-            # self.pop3_data.load_sub_dataset("POP3ovDNS-DL-TEST-20", "All")
+            # self.pop3_data.load_sub_dataset("POP3ovDNS-DL-TEST", "All")
+            self.pop3_data.load_sub_dataset("POP3ovDNS-DL-TEST-20", "All")
             self.all_test_data.append(self.pop3_data)
 
     def select_single_test_pcap(self, specific_label):
@@ -130,28 +130,29 @@ class tunKnn(object):
                 avg_of_curr_obj = np.average(curr_pcap_entropy_list)
                 self.logger.debug("Average Entropy of Selected Test Object: %.8f" % avg_of_curr_obj)
 
-                for idx, pcap_json_item in enumerate(pcap_group.all_json_data_list):
-                    if curr_pcap_json_obj.single_json_object_data['filename'] == pcap_json_item.single_json_object_data['filename']:
-                        self.logger.debug("HIT CONTINUE ... to skip the CURRENT chosen PCAP - that is still in the list")
-                        continue
-                    pcap_entropy_list = pcap_json_item.get_single_pcap_json_feature_entropy()
-                    self.logger.debug("Entropy List length: %i" % len(pcap_entropy_list))
-                    entropy_avg = np.average(pcap_entropy_list)
-                    self.logger.debug("Avg Entropy of Current ...in loop: %.8f" % avg_of_curr_obj)
-                    diff = abs(avg_of_curr_obj - entropy_avg)
-                    self.logger.debug("Avg Entropy Difference : %.8f" % diff)
-                    if diff < curr_least_diff:
-                        curr_least_diff = diff
-                        curr_pcap_lbl = pcap_json_item.single_json_object_data['protocol']
-                        curr_pcap_name = pcap_json_item.single_json_object_data['filename']
-                        self.logger.debug("Current Min: %.8f" % curr_least_diff)
+                for grp_count, pcap_labelled_grp in enumerate(self.all_test_data):
+                    for idx, pcap_json_item in enumerate(pcap_labelled_grp.all_json_data_list):
+                        if curr_pcap_json_obj.single_json_object_data['filename'] == pcap_json_item.single_json_object_data['filename']:
+                            self.logger.debug("HIT CONTINUE ... to skip the CURRENT chosen PCAP - that is still in the list")
+                            continue
+                        pcap_entropy_list = pcap_json_item.get_single_pcap_json_feature_entropy()
+                        self.logger.debug("Entropy List length: %i" % len(pcap_entropy_list))
+                        entropy_avg = np.average(pcap_entropy_list)
+                        self.logger.debug("Avg Entropy of Current ...in loop: %.8f" % avg_of_curr_obj)
+                        diff = abs(avg_of_curr_obj - entropy_avg)
+                        self.logger.debug("Avg Entropy Difference : %.8f" % diff)
+                        if diff < curr_least_diff:
+                            curr_least_diff = diff
+                            curr_pcap_lbl = pcap_json_item.single_json_object_data['protocol']
+                            curr_pcap_name = pcap_json_item.single_json_object_data['filename']
+                            self.logger.debug("Current Min: %.8f" % curr_least_diff)
 
-                        least_diff.update({len(least_diff)-1: curr_least_diff})
-                        neighbour_proto_lbls.update({len(least_diff)-1: curr_pcap_lbl})
-                        neighbour_pcap_names.update({len(least_diff)-1: curr_pcap_name})
-                        # least_diff.move_to_end(diff, last=False)
-                    # if diff < max(least_diff, key=least_diff.get):
-                    #     self.logger.debug("Current Min: %.3f" % diff)
+                            least_diff.update({len(least_diff)-1: curr_least_diff})
+                            neighbour_proto_lbls.update({len(least_diff)-1: curr_pcap_lbl})
+                            neighbour_pcap_names.update({len(least_diff)-1: curr_pcap_name})
+                            # least_diff.move_to_end(diff, last=False)
+                        # if diff < max(least_diff, key=least_diff.get):
+                        #     self.logger.debug("Current Min: %.3f" % diff)
 
                 self.logger.debug("Average Entropy of Selected Test Object: %.8f" % avg_of_curr_obj)
                 self.logger.debug("TEST SAMPLE ACTUAL LABEL: %s" % lbl_of_curr_pcap)
@@ -192,10 +193,6 @@ class tunKnn(object):
         self.logger.info("----------------------------------------")
         self.logger.info("True Positives: %s" % tp_counter_dict)
         self.logger.info("Class Label Test Summary Info: %s" % Counter(all_true_labels))
-
-
-
-
 
 
 
