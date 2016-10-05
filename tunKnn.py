@@ -182,11 +182,22 @@ class tunKnn(object):
 
                             largest = max([dict_obj['diff'] for idx, dict_obj in enumerate(least_diff.values())])
                             if diff < largest: # least_diff.get(0)['diff']:
-                                least_diff.update({len(least_diff) - 1: {'diff': diff, 'pred_label': curr_pcap_lbl,
-                                                                         'f_name:': curr_pcap_name}})
-                                # if k == 1:
-                                #     least_diff.update({(k - 1): {'diff': diff, 'pred_label': curr_pcap_lbl,
-                                #                                  'f_name:': curr_pcap_name}})
+                                # least_diff.update({len(least_diff) - 1: {'diff': diff, 'pred_label': curr_pcap_lbl,
+                                #                                          'f_name:': curr_pcap_name}})
+                                # self.logger.debug("Current Largest Diff in Predictions: %s" % largest)
+                                self.logger.debug("Latest / Current DIFF: %s" % diff)
+
+                                for idx, dict_pred in enumerate(least_diff.values()):
+                                    self.logger.debug("Collected LEAST_DIFF values: %s" % dict_pred)
+                                    self.logger.debug("Collected LEAST_DIFF 'diff' values: %s" % dict_pred['diff'])
+                                    self.logger.debug("Collected Largest Diff in Predictions: %s" % largest)
+                                    if dict_pred['diff'] == largest:
+                                        self.logger.debug("Largest Diff Item: %s" % dict_pred)
+                                        self.logger.debug("Largest Diff Item INDEX: %s" % idx)
+
+                                least_diff.update(
+                                    {len(least_diff)-1: {'diff': diff, 'pred_label': curr_pcap_lbl,'f_name:': curr_pcap_name}})
+
                                 # elif k > 1:
                                 #     least_diff.update({len(least_diff)-1: {'diff': diff, 'pred_label': curr_pcap_lbl,
                                 #                                  'f_name:': curr_pcap_name}})
@@ -199,36 +210,6 @@ class tunKnn(object):
                                 #             least_diff.pop(idx)
                                 #             least_diff.update({len(least_diff): {'diff': diff, 'pred_label': curr_pcap_lbl,
                                 #                              'f_name:': curr_pcap_name}})
-
-
-                            # else:
-                            #     if len(least_diff_list) < k:
-                            #         # least_diff_list.append({'diff': diff, 'pred_label': curr_pcap_lbl, 'f_name:': curr_pcap_name})
-                            #         least_diff.update({'diff': diff, 'pred_label': curr_pcap_lbl, 'f_name:': curr_pcap_name})
-                            #     else:
-                            #         # largest = max(items['diff'] for idx, items in enumerate(least_diff_list))
-                            #         largest = max(items['diff'] for idx, items in enumerate(least_diff))
-                            #
-                            #         if diff < largest:
-                            #             for idx, dict_obj in least_diff.items():
-                            #                 if dict_obj['diff'] == largest:
-                            #                     self.logger.debug("Largest Diff Item: %s" % dict_obj)
-                            #                     least_diff.pop(idx)
-                            #                     least_diff.update({'diff': diff, 'pred_label': curr_pcap_lbl, 'f_name:': curr_pcap_name})
-
-                            # if diff < largest:
-                                # least_diff_list.pop(least_diff_list.index(max(least_diff_list)))
-
-                        # if len(least_diff) < k:
-                        #     if len(least_diff) == 0:
-                        #         curr_least_diff = 10.0
-                        #         if diff < curr_least_diff:
-                        #             curr_least_diff = diff
-                        #
-                        #             least_diff.update({0: curr_least_diff})
-                        #     elif len(least_diff) > 0:
-                        #         if diff < least_diff.get(len(least_diff)-1):
-                        #             least_diff.
 
 
                         # if len(least_diff) >= k or len(least_diff) == 1:
