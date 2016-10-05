@@ -163,21 +163,6 @@ class Single_PCAP_JSON(object):
                                                                        "POP3-Req-Bytes-Entropy"]:
                 single_pcap_entropy_list = pcap_json_item['props'][feat_num]['values']
 
-                # for x, hex_str_item in enumerate(pcap_json_item['props'][feat_num]['values']):
-                #     # chunked_list = re.findall('..', hex_str_item)
-                #
-                #     encoded_str = b2a.unhexlify(hex_str_item.encode())
-                #     if x == 0:
-                #         # self.logger.debug("Length of 1st List: %i" % len(chunked_list))
-                #         # self.logger.debug("Chunked list: %s" % str(chunked_list))
-                #         # self.logger.debug("Counter on Chunked list: %s" % str(Counter(chunked_list)))
-                #         self.logger.debug("HEX string item: %s" % hex_str_item)
-                #         self.logger.debug("Encoded String: %s" % encoded_str)
-                #     # entropy_list.append(calc_entropy(Counter(encoded_str)))
-                #     single_pcap_entropy_list.append(self.calcEntropy(Counter(encoded_str)))
-                #     # entropy_list.append(self.calcEntropy(Counter(chunked_list)))
-                # self.logger.debug("Length of Single PCAP entropy list: %i" % len(single_pcap_entropy_list))
-
         return single_pcap_entropy_list
 
     def get_single_pcap_json_feature_entropy(self):
