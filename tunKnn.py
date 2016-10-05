@@ -18,6 +18,7 @@ class tunKnn(object):
         self.logger.setLevel(logging.DEBUG)
         # self.logger.setLevel(logging.WARNING)
 
+        self.use_reCalcEntropy = False
         self.test_dataset_label = test_data_lbl
         self.all_test_data = []
 
@@ -26,32 +27,32 @@ class tunKnn(object):
 
         if self.test_dataset_label in ["HTTPovDNS-Static", "Compare-All"]:
             self.http_data = TunnelMiner()
-            # self.http_data.load_sub_dataset("HTTPovDNS-Static", "All")   # <--- Full HTTPovDNS-static Data set
+            self.http_data.load_sub_dataset("HTTPovDNS-Static", "All")   # <--- Full HTTPovDNS-static Data set
             # self.http_data.load_sub_dataset("HTTPovDNS-Static-TEST", "All")
-            self.http_data.load_sub_dataset("HTTPovDNS-Static-TEST-20", "All")
+            # self.http_data.load_sub_dataset("HTTPovDNS-Static-TEST-20", "All")
             # self.http_data.load_sub_dataset("http-ovDNS-test2", "All")
             self.all_test_data.append(self.http_data)
 
         if self.test_dataset_label in ["FTPovDNS-DL", "Compare-All"]:
             self.ftp_data = TunnelMiner()
-            # self.ftp_data.load_sub_dataset("FTPovDNS-DL", "All")          # <--- Full FTPovDNS Data set
+            self.ftp_data.load_sub_dataset("FTPovDNS-DL", "All")          # <--- Full FTPovDNS Data set
             # self.ftp_data.load_sub_dataset("FTPovDNS-DL-TEST", "All")
-            self.ftp_data.load_sub_dataset("FTPovDNS-DL-TEST-20", "All")
+            # self.ftp_data.load_sub_dataset("FTPovDNS-DL-TEST-20", "All")
             # self.ftp_data.load_sub_dataset("ftp-ovDNS-test-old", "All")
             self.all_test_data.append(self.ftp_data)
 
         if self.test_dataset_label in ["HTTP-S-ovDNS-Static", "Compare-All"]:
             self.http_s_data = TunnelMiner()
-            # self.http_s_data.load_sub_dataset("HTTP-S-ovDNS-Static", "All")
+            self.http_s_data.load_sub_dataset("HTTP-S-ovDNS-Static", "All")
             # self.http_s_data.load_sub_dataset("HTTP-S-ovDNS-Static-TEST", "All")
-            self.http_s_data.load_sub_dataset("HTTP-S-ovDNS-Static-TEST-20", "All")
+            # self.http_s_data.load_sub_dataset("HTTP-S-ovDNS-Static-TEST-20", "All")
             self.all_test_data.append(self.http_s_data)
 
         if self.test_dataset_label in ["POP3ovDNS-DL", "Compare-All"]:
             self.pop3_data = TunnelMiner()
-            # self.pop3_data.load_sub_dataset("POP3ovDNS-DL", "All")
+            self.pop3_data.load_sub_dataset("POP3ovDNS-DL", "All")
             # self.pop3_data.load_sub_dataset("POP3ovDNS-DL-TEST", "All")
-            self.pop3_data.load_sub_dataset("POP3ovDNS-DL-TEST-20", "All")
+            # self.pop3_data.load_sub_dataset("POP3ovDNS-DL-TEST-20", "All")
             self.all_test_data.append(self.pop3_data)
 
     def select_single_test_pcap(self, specific_label):
@@ -65,7 +66,12 @@ class tunKnn(object):
         return self.selected_pcap_json_obj
 
     def get_k_nearest_neighbours_of_single_random(self, k):
-        single_pcap_entropy_list = self.selected_pcap_json_obj.get_single_pcap_json_feature_entropy()
+        if self.use_reCalcEntropy == True:
+            single_pcap_entropy_list = self.selected_pcap_json_obj.get_single_pcap_json_feature_entropy()
+        else:
+            single_pcap_entropy_list = self.selected_pcap_json_obj.get_single_pcap_json_feature_entropy_from_file()
+            # single_pcap_entropy_list = self.selected_pcap_json_obj.single_json_object_data['props'].get('feature_name': 'DNS-Req-Qnames-Enc-Comp-Entropy')['values']
+
         lbl_of_selected_pcap = self.selected_pcap_json_obj.single_json_object_data['protocol']
         avg_of_selected_obj = np.average(single_pcap_entropy_list)
         self.logger.debug("Average Entropy of Selected Test Object: %.8f" % avg_of_selected_obj)
@@ -82,7 +88,12 @@ class tunKnn(object):
                 if self.selected_pcap_json_obj.single_json_object_data['filename'] == pcap_json_item.single_json_object_data['filename']:
                     self.logger.debug("HIT CONTINUE ... to skip the chosen PCAP that is still in the list")
                     continue
-                pcap_entropy_list = pcap_json_item.get_single_pcap_json_feature_entropy()
+
+                if self.use_reCalcEntropy == True:
+                    pcap_entropy_list = pcap_json_item.get_single_pcap_json_feature_entropy()
+                else:
+                    pcap_entropy_list = pcap_json_item.get_single_pcap_json_feature_entropy_from_file()
+
                 self.logger.debug("Entropy List length: %i" % len(pcap_entropy_list))
                 entropy_avg = np.average(pcap_entropy_list)
                 self.logger.debug("Avg Entropy of Current ...in loop: %.8f" % avg_of_selected_obj)
@@ -124,7 +135,10 @@ class tunKnn(object):
                 neighbour_pcap_names = OrderedDict.fromkeys(range(k))
                 curr_least_diff = 10.0
 
-                curr_pcap_entropy_list = curr_pcap_json_obj.get_single_pcap_json_feature_entropy()
+                if self.use_reCalcEntropy:  # Recalculate entropy from Hex_strings
+                    curr_pcap_entropy_list = curr_pcap_json_obj.get_single_pcap_json_feature_entropy()
+                else:
+                    curr_pcap_entropy_list = curr_pcap_json_obj.get_single_pcap_json_feature_entropy_from_file()
                 lbl_of_curr_pcap = curr_pcap_json_obj.single_json_object_data['protocol']
                 all_true_labels.append(lbl_of_curr_pcap) # To eventually be used for Counter
                 avg_of_curr_obj = np.average(curr_pcap_entropy_list)
@@ -135,7 +149,13 @@ class tunKnn(object):
                         if curr_pcap_json_obj.single_json_object_data['filename'] == pcap_json_item.single_json_object_data['filename']:
                             self.logger.debug("HIT CONTINUE ... to skip the CURRENT chosen PCAP - that is still in the list")
                             continue
-                        pcap_entropy_list = pcap_json_item.get_single_pcap_json_feature_entropy()
+
+                        self.logger.debug("Current PCAP being checked against: %s" % pcap_json_item.single_json_object_data['filename'])
+                        if self.use_reCalcEntropy:
+                            pcap_entropy_list = pcap_json_item.get_single_pcap_json_feature_entropy()
+                        else:
+                            pcap_entropy_list = pcap_json_item.get_single_pcap_json_feature_entropy_from_file()
+
                         self.logger.debug("Entropy List length: %i" % len(pcap_entropy_list))
                         entropy_avg = np.average(pcap_entropy_list)
                         self.logger.debug("Avg Entropy of Current ...in loop: %.8f" % avg_of_curr_obj)
