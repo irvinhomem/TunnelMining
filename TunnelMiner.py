@@ -149,6 +149,37 @@ class Single_PCAP_JSON(object):
 
         self.single_json_object_data = json_data
 
+    def get_single_pcap_json_feature_entropy_from_file(self):
+        pcap_json_item = self.single_json_object_data
+        single_pcap_entropy_list = None
+        for feat_num, feature in enumerate(pcap_json_item['props']):
+            self.logger.debug("Json Number of features: %s" % len(pcap_json_item['props']))
+            self.logger.debug("Json features: %s" % len(pcap_json_item['props'][feat_num]))
+            self.logger.debug("Json Data Feature Name: %s" % str(pcap_json_item['props'][feat_num]['feature_name']))
+            if pcap_json_item['props'][feat_num]['feature_name'] in ["DNS-Req-Qnames-Enc-Comp-Entropy",
+                                                                       "HTTP-Req-Bytes-Entropy",
+                                                                       "FTP-Req-Bytes-Entropy",
+                                                                       "HTTP-S-Req-Bytes-Entropy",
+                                                                       "POP3-Req-Bytes-Entropy"]:
+                single_pcap_entropy_list = pcap_json_item['props'][feat_num]['values']
+
+                # for x, hex_str_item in enumerate(pcap_json_item['props'][feat_num]['values']):
+                #     # chunked_list = re.findall('..', hex_str_item)
+                #
+                #     encoded_str = b2a.unhexlify(hex_str_item.encode())
+                #     if x == 0:
+                #         # self.logger.debug("Length of 1st List: %i" % len(chunked_list))
+                #         # self.logger.debug("Chunked list: %s" % str(chunked_list))
+                #         # self.logger.debug("Counter on Chunked list: %s" % str(Counter(chunked_list)))
+                #         self.logger.debug("HEX string item: %s" % hex_str_item)
+                #         self.logger.debug("Encoded String: %s" % encoded_str)
+                #     # entropy_list.append(calc_entropy(Counter(encoded_str)))
+                #     single_pcap_entropy_list.append(self.calcEntropy(Counter(encoded_str)))
+                #     # entropy_list.append(self.calcEntropy(Counter(chunked_list)))
+                # self.logger.debug("Length of Single PCAP entropy list: %i" % len(single_pcap_entropy_list))
+
+        return single_pcap_entropy_list
+
     def get_single_pcap_json_feature_entropy(self):
         pcap_json_item = self.single_json_object_data
         single_pcap_entropy_list = []
