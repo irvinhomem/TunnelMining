@@ -179,28 +179,26 @@ class tunKnn(object):
                             least_diff.update({k-1: {'diff': diff, 'pred_label': curr_pcap_lbl, 'f_name:': curr_pcap_name}})
                         if len(least_diff) > 0:
                             self.logger.debug("Least diff dictionary has at least 1 item | LEN = %i" % len(least_diff))
-                            largest = max([dict_obj['diff'] for idx, dict_obj in enumerate(least_diff.values())])
-                            # list_of_diffs = []
-                            # largest = None
-                            # for idx, dict_obj in enumerate(least_diff.values()):
-                            #     self.logger.debug("Curr Dict Obj TYPE %s" % type(dict_obj))
-                            #     self.logger.debug("Curr Dict Obj %s" % dict_obj)
-                            #     list_of_diffs.append( dict_obj['diff'])
-                            #     largest = max(list_of_diffs)
 
+                            largest = max([dict_obj['diff'] for idx, dict_obj in enumerate(least_diff.values())])
                             if diff < largest: # least_diff.get(0)['diff']:
-                                if k == 1:
-                                    least_diff.update({(k - 1): {'diff': diff, 'pred_label': curr_pcap_lbl,
-                                                                 'f_name:': curr_pcap_name}})
-                                elif k > 1:
-                                    largest = max([dict_obj['diff'] for idx, dict_obj in enumerate(least_diff.items)])
-                                    if diff < largest:
-                                        for idx, dict_pred in least_diff.items():
-                                            if dict_pred['diff'] == largest:
-                                                self.logger.debug("Largest Diff Item: %s" % dict_pred)
-                                                least_diff.pop(idx)
-                                                least_diff.update({len(least_diff): {'diff': diff, 'pred_label': curr_pcap_lbl,
-                                                                 'f_name:': curr_pcap_name}})
+                                least_diff.update({len(least_diff) - 1: {'diff': diff, 'pred_label': curr_pcap_lbl,
+                                                                         'f_name:': curr_pcap_name}})
+                                # if k == 1:
+                                #     least_diff.update({(k - 1): {'diff': diff, 'pred_label': curr_pcap_lbl,
+                                #                                  'f_name:': curr_pcap_name}})
+                                # elif k > 1:
+                                #     least_diff.update({len(least_diff)-1: {'diff': diff, 'pred_label': curr_pcap_lbl,
+                                #                                  'f_name:': curr_pcap_name}})
+                                # elif len(least_diff) >= k:
+                                #     for idx, dict_pred in enumerate(least_diff.values()):
+                                #         self.logger.debug("k > 1 loop values: %s" % dict_pred)
+                                #         if dict_pred['diff'] == largest:
+                                #             self.logger.debug("Largest Diff Item: %s" % dict_pred)
+                                #             self.logger.debug("Largest Diff Item INDEX: %s" % idx)
+                                #             least_diff.pop(idx)
+                                #             least_diff.update({len(least_diff): {'diff': diff, 'pred_label': curr_pcap_lbl,
+                                #                              'f_name:': curr_pcap_name}})
 
 
                             # else:
@@ -313,4 +311,4 @@ knn_test = tunKnn("Compare-All")
 
 # knn_test.get_k_nearest_neighbours_of_single_random(1)
 
-knn_test.get_k_nearest_neighbours_all(1)
+knn_test.get_k_nearest_neighbours_all(2)
