@@ -175,12 +175,6 @@ class tunKnn(object):
                         curr_pcap_name = pcap_json_item.single_json_object_data['filename']
                         self.logger.debug("Current Min: %.6f" % curr_least_diff)
                         #
-                        # if len(least_diff_list) == 0:
-                        #     self.logger.debug("Least diff dictionary was empty = len = %i" %len(least_diff_list))
-                        #     least_diff_list.append(
-                        #         {'diff': diff, 'pred_label': curr_pcap_lbl, 'f_name:': curr_pcap_name})
-
-                        # if len(least_diff_list) > 0:
                         self.logger.debug("Current Length of LIST of least-diffs %i" % len(least_diff_list))
 
                         if len(least_diff_list) < k:
@@ -281,6 +275,7 @@ class tunKnn(object):
                     tp_counter_dict[truth_vs_prediction_dict['true_lbl']] = 0
                 # if truth_vs_prediction_dict['true_lbl'] == truth_vs_prediction_dict['predicted'].get(0)['pred_label']:
                 ordered_list = sorted(truth_vs_prediction_dict['predicted'], key=itemgetter('diff'))
+                #Check for 1-NN (One-Neareast Neighbour)
                 if truth_vs_prediction_dict['true_lbl'] == ordered_list[0]['pred_label']:
                     self.logger.debug("True label from dict: %s" % truth_vs_prediction_dict['true_lbl'])
                     self.logger.debug("First Label from Dict within ORDERED-LIST: %s" % ordered_list[0]['pred_label'])
@@ -314,4 +309,4 @@ knn_test = tunKnn("Compare-All")
 
 # knn_test.get_k_nearest_neighbours_of_single_random(1)
 
-knn_test.get_k_nearest_neighbours_all(1)
+knn_test.get_k_nearest_neighbours_all(2)
