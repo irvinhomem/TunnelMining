@@ -129,21 +129,8 @@ class tunKnn(object):
         for count, pcap_group in enumerate(self.all_test_data):
             # tp_counter = 0
             for idx_selected, curr_pcap_json_obj in enumerate(pcap_group.all_json_data_list):
-                # truth_vs_prediction_dict = {'name': '', 'true_lbl': '', 'predicted': ''}
-                # Create an ORDERED dictionary of size k
-                # least_diff = dict.fromkeys((range(k)))
-
-                # least_diff = OrderedDict.fromkeys(range(k))
-                # neighbour_proto_lbls = OrderedDict.fromkeys(range(k))
-                # neighbour_pcap_names = OrderedDict.fromkeys(range(k))
                 curr_least_diff = 10.0
-                # least_diff = OrderedDict({'0': 10.0})
-                # neighbour_proto_lbls = OrderedDict({'0': ''})
-                # neighbour_pcap_names = OrderedDict({'0': ''})
-                # least_diff = OrderedDict()
                 least_diff_list = []
-                # neighbour_proto_lbls = OrderedDict()
-                # neighbour_pcap_names = OrderedDict()
 
                 if self.use_reCalcEntropy:  # Recalculate entropy from Hex_strings
                     curr_pcap_entropy_list = curr_pcap_json_obj.get_single_pcap_json_feature_entropy()
@@ -184,9 +171,6 @@ class tunKnn(object):
                             # largest = max([dict_obj['diff'] for idx, dict_obj in enumerate(least_diff.values())])
                             largest = max([dict_obj['diff'] for idx, dict_obj in enumerate(least_diff_list)])
                             if diff < largest: # least_diff.get(0)['diff']:
-                                # least_diff.update({len(least_diff) - 1: {'diff': diff, 'pred_label': curr_pcap_lbl,
-                                #                                          'f_name:': curr_pcap_name}})
-                                # self.logger.debug("Current Largest Diff in Predictions: %s" % largest)
                                 self.logger.debug("Latest / Current DIFF: %s" % diff)
 
                                 index_to_remove = None
@@ -257,18 +241,8 @@ class tunKnn(object):
                         self.logger.debug("Majority Label: %s" % majority_label[0][0])
                         knn_tp_counter_dict[truth_vs_prediction_dict['true_lbl']] += 1
 
-
-
-        # all_true_labels = []
-        # true_positives_list = []
         for idx, dict_item in enumerate(prediction_list):
             self.logger.debug("PCAP:[%i]-%s" % (idx, dict_item))
-            # # To eventually get count of number of items per class-label
-            # all_true_labels.append(dict_item['true_lbl'])
-            #
-            # for single_label in unique_labels:
-            #
-            #     if dict_item['true_lbl'] == dict_item['predicted']['0']:
 
         self.logger.info("----------------------------------------")
         self.logger.info("1-NN True Positives: %s" % tp_counter_dict)
