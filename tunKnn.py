@@ -5,6 +5,7 @@ import random
 # import binascii as b2a
 import numpy as np
 from collections import OrderedDict, Counter
+from operator import itemgetter
 
 
 class tunKnn(object):
@@ -138,8 +139,8 @@ class tunKnn(object):
                 # least_diff = OrderedDict({'0': 10.0})
                 # neighbour_proto_lbls = OrderedDict({'0': ''})
                 # neighbour_pcap_names = OrderedDict({'0': ''})
-                least_diff = OrderedDict()
-                # least_diff_list = []
+                # least_diff = OrderedDict()
+                least_diff_list = []
                 # neighbour_proto_lbls = OrderedDict()
                 # neighbour_pcap_names = OrderedDict()
 
@@ -174,29 +175,48 @@ class tunKnn(object):
                         curr_pcap_name = pcap_json_item.single_json_object_data['filename']
                         self.logger.debug("Current Min: %.6f" % curr_least_diff)
 
-                        if len(least_diff) == 0:
-                            self.logger.debug("Least diff dictionary was empty = len = %i" %len(least_diff))
-                            least_diff.update({k-1: {'diff': diff, 'pred_label': curr_pcap_lbl, 'f_name:': curr_pcap_name}})
-                        if len(least_diff) > 0:
-                            self.logger.debug("Least diff dictionary has at least 1 item | LEN = %i" % len(least_diff))
+                        if len(least_diff_list) == 0:
+                            self.logger.debug("Least diff dictionary was empty = len = %i" %len(least_diff_list))
+                            # least_diff.update({k-1: {'diff': diff, 'pred_label': curr_pcap_lbl, 'f_name:': curr_pcap_name}})
+                            # least_diff.update({0: {'diff': diff, 'pred_label': curr_pcap_lbl, 'f_name:': curr_pcap_name}})
+                            least_diff_list.append(
+                                {'diff': diff, 'pred_label': curr_pcap_lbl, 'f_name:': curr_pcap_name})
+                            # single_pred_dict = {'diff': diff, 'pred_label': curr_pcap_lbl, 'f_name': curr_pcap_name}
+                            # least_diff.update({0: single_pred_dict})
+                            # least_diff['0'] = single_pred_dict
+                        if len(least_diff_list) > 0:
+                            self.logger.debug("Least diff dictionary has at least 1 item | LEN = %i" % len(least_diff_list))
 
-                            largest = max([dict_obj['diff'] for idx, dict_obj in enumerate(least_diff.values())])
+                            # largest = max([dict_obj['diff'] for idx, dict_obj in enumerate(least_diff.values())])
+                            largest = max([dict_obj['diff'] for idx, dict_obj in enumerate(least_diff_list)])
                             if diff < largest: # least_diff.get(0)['diff']:
                                 # least_diff.update({len(least_diff) - 1: {'diff': diff, 'pred_label': curr_pcap_lbl,
                                 #                                          'f_name:': curr_pcap_name}})
                                 # self.logger.debug("Current Largest Diff in Predictions: %s" % largest)
                                 self.logger.debug("Latest / Current DIFF: %s" % diff)
 
-                                for idx, dict_pred in enumerate(least_diff.values()):
+                                index_to_remove = None
+                                for idx, dict_pred in enumerate(least_diff_list):
+                                # for idx, dict_pred in enumerate(least_diff.values()):
                                     self.logger.debug("Collected LEAST_DIFF values: %s" % dict_pred)
                                     self.logger.debug("Collected LEAST_DIFF 'diff' values: %s" % dict_pred['diff'])
                                     self.logger.debug("Collected Largest Diff in Predictions: %s" % largest)
                                     if dict_pred['diff'] == largest:
+                                        self.logger.debug("Current View -  Least Diff: %s" % least_diff_list[idx])
+                                        # self.logger.debug("Current View Least Diff: %s" % least_diff.get(idx))
                                         self.logger.debug("Largest Diff Item: %s" % dict_pred)
                                         self.logger.debug("Largest Diff Item INDEX: %s" % idx)
+                                        index_to_remove = idx
+                                        break
 
-                                least_diff.update(
-                                    {len(least_diff)-1: {'diff': diff, 'pred_label': curr_pcap_lbl,'f_name:': curr_pcap_name}})
+                                self.logger.debug("Length of List: %i" % len(least_diff_list))
+                                least_diff_list.pop(index_to_remove)
+                                self.logger.debug("LARGEST ITEM REMOVED")
+
+                                # least_diff.update({len(least_diff)-1: {'diff': diff, 'pred_label': curr_pcap_lbl,'f_name:': curr_pcap_name}})
+                                least_diff_list.append({'diff': diff,
+                                                        'pred_label': curr_pcap_lbl,
+                                                        'f_name:': curr_pcap_name})
 
                                 # elif k > 1:
                                 #     least_diff.update({len(least_diff)-1: {'diff': diff, 'pred_label': curr_pcap_lbl,
@@ -240,8 +260,9 @@ class tunKnn(object):
                 self.logger.debug("TEST SAMPLE ACTUAL LABEL: %s" % lbl_of_curr_pcap)
 
                 self.logger.debug("Final Least Diff: %.8f" % curr_least_diff)
-                self.logger.debug("ORDERED-DICT of least-diffs from neighbours: %s" % least_diff)
-                self.logger.debug("ORDERED-DICT of labels: %s" % least_diff.get(0))
+                # self.logger.debug("ORDERED-DICT of least-diffs from neighbours: %s" % least_diff)
+                self.logger.debug("ORDERED-DICT of least-diffs from neighbours: %s" % least_diff_list)
+                # self.logger.debug("ORDERED-DICT of labels: %s" % least_diff.get(0))
                 # self.logger.debug("ORDERED-DICT of labels: %s" % neighbour_proto_lbls)
 
                 # truth_vs_prediction_dict = {'name': curr_pcap_json_obj.single_json_object_data['filename'],
@@ -252,17 +273,18 @@ class tunKnn(object):
 
                 truth_vs_prediction_dict = {'name': curr_pcap_json_obj.single_json_object_data['filename'],
                                             'true_lbl': lbl_of_curr_pcap,
-                                            'predicted': least_diff}
+                                            'predicted': least_diff_list}
 
                 prediction_list.append(truth_vs_prediction_dict)
 
                 if truth_vs_prediction_dict['true_lbl'] not in unique_labels:
                     unique_labels.append(truth_vs_prediction_dict['true_lbl'])
                     tp_counter_dict[truth_vs_prediction_dict['true_lbl']] = 0
-                if truth_vs_prediction_dict['true_lbl'] == truth_vs_prediction_dict['predicted'].get(0)['pred_label']:
+                # if truth_vs_prediction_dict['true_lbl'] == truth_vs_prediction_dict['predicted'].get(0)['pred_label']:
+                ordered_list = sorted(truth_vs_prediction_dict['predicted'], key=itemgetter('diff'))
+                if truth_vs_prediction_dict['true_lbl'] == ordered_list[0]['pred_label']:
                     self.logger.debug("True label from dict: %s" % truth_vs_prediction_dict['true_lbl'])
-                    self.logger.debug("True label from ORDERED-DICT within Dict: %s" %
-                                      truth_vs_prediction_dict['predicted'].get(0))
+                    self.logger.debug("Label from Dict within ORDERED-LIST: %s" % ordered_list[0]['pred_label'])
                     tp_counter_dict[truth_vs_prediction_dict['true_lbl']] += 1
 
 
@@ -292,4 +314,4 @@ knn_test = tunKnn("Compare-All")
 
 # knn_test.get_k_nearest_neighbours_of_single_random(1)
 
-knn_test.get_k_nearest_neighbours_all(2)
+knn_test.get_k_nearest_neighbours_all(1)
