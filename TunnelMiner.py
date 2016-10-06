@@ -19,8 +19,8 @@ class TunnelMiner(object):
         logging.basicConfig(level=logging.INFO)
         # logging.basicConfig(level=logging.WARNING)
         self.logger = logging.getLogger(__name__)
-        # self.logger.setLevel(logging.INFO)
-        self.logger.setLevel(logging.DEBUG)
+        self.logger.setLevel(logging.INFO)
+        # self.logger.setLevel(logging.DEBUG)
         # self.logger.setLevel(logging.WARNING)
 
         # Set JSON base path directory
@@ -143,8 +143,8 @@ class Single_PCAP_JSON(object):
         logging.basicConfig(level=logging.INFO)
         # logging.basicConfig(level=logging.WARNING)
         self.logger = logging.getLogger(__name__)
-        # self.logger.setLevel(logging.INFO)
-        self.logger.setLevel(logging.DEBUG)
+        self.logger.setLevel(logging.INFO)
+        # self.logger.setLevel(logging.DEBUG)
         # self.logger.setLevel(logging.WARNING)
 
         self.single_json_object_data = json_data
