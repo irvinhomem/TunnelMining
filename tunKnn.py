@@ -174,19 +174,18 @@ class tunKnn(object):
                         curr_pcap_lbl = pcap_json_item.single_json_object_data['protocol']
                         curr_pcap_name = pcap_json_item.single_json_object_data['filename']
                         self.logger.debug("Current Min: %.6f" % curr_least_diff)
+                        #
+                        # if len(least_diff_list) == 0:
+                        #     self.logger.debug("Least diff dictionary was empty = len = %i" %len(least_diff_list))
+                        #     least_diff_list.append(
+                        #         {'diff': diff, 'pred_label': curr_pcap_lbl, 'f_name:': curr_pcap_name})
 
-                        if len(least_diff_list) == 0:
-                            self.logger.debug("Least diff dictionary was empty = len = %i" %len(least_diff_list))
-                            # least_diff.update({k-1: {'diff': diff, 'pred_label': curr_pcap_lbl, 'f_name:': curr_pcap_name}})
-                            # least_diff.update({0: {'diff': diff, 'pred_label': curr_pcap_lbl, 'f_name:': curr_pcap_name}})
-                            least_diff_list.append(
-                                {'diff': diff, 'pred_label': curr_pcap_lbl, 'f_name:': curr_pcap_name})
-                            # single_pred_dict = {'diff': diff, 'pred_label': curr_pcap_lbl, 'f_name': curr_pcap_name}
-                            # least_diff.update({0: single_pred_dict})
-                            # least_diff['0'] = single_pred_dict
-                        if len(least_diff_list) > 0:
-                            self.logger.debug("Least diff dictionary has at least 1 item | LEN = %i" % len(least_diff_list))
+                        # if len(least_diff_list) > 0:
+                        self.logger.debug("Current Length of LIST of least-diffs %i" % len(least_diff_list))
 
+                        if len(least_diff_list) < k:
+                            least_diff_list.append({'diff': diff, 'pred_label': curr_pcap_lbl, 'f_name:': curr_pcap_name})
+                        else:
                             # largest = max([dict_obj['diff'] for idx, dict_obj in enumerate(least_diff.values())])
                             largest = max([dict_obj['diff'] for idx, dict_obj in enumerate(least_diff_list)])
                             if diff < largest: # least_diff.get(0)['diff']:
@@ -284,7 +283,8 @@ class tunKnn(object):
                 ordered_list = sorted(truth_vs_prediction_dict['predicted'], key=itemgetter('diff'))
                 if truth_vs_prediction_dict['true_lbl'] == ordered_list[0]['pred_label']:
                     self.logger.debug("True label from dict: %s" % truth_vs_prediction_dict['true_lbl'])
-                    self.logger.debug("Label from Dict within ORDERED-LIST: %s" % ordered_list[0]['pred_label'])
+                    self.logger.debug("First Label from Dict within ORDERED-LIST: %s" % ordered_list[0]['pred_label'])
+                    self.logger.debug("Length of Ranked Predictions List: %i" % len(ordered_list))
                     tp_counter_dict[truth_vs_prediction_dict['true_lbl']] += 1
 
 
