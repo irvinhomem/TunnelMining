@@ -25,36 +25,43 @@ class tunKnn(object):
 
         # Test item
         self.selected_pcap_json_obj = None
-
+        self.all_unique_labels = []
         if self.test_dataset_label in ["HTTPovDNS-Static", "Compare-All"]:
             self.http_data = TunnelMiner()
-            self.http_data.load_sub_dataset("HTTPovDNS-Static", "All")   # <--- Full HTTPovDNS-static Data set
+            # self.http_data.load_sub_dataset("HTTPovDNS-Static", "All")   # <--- Full HTTPovDNS-static Data set
             # self.http_data.load_sub_dataset("HTTPovDNS-Static-TEST", "All")
-            # self.http_data.load_sub_dataset("HTTPovDNS-Static-TEST-20", "All")
+            self.http_data.load_sub_dataset("HTTPovDNS-Static-TEST-20", "All")
             # self.http_data.load_sub_dataset("http-ovDNS-test2", "All")
             self.all_test_data.append(self.http_data)
+            self.all_unique_labels.append(self.test_dataset_label)
 
         if self.test_dataset_label in ["FTPovDNS-DL", "Compare-All"]:
             self.ftp_data = TunnelMiner()
-            self.ftp_data.load_sub_dataset("FTPovDNS-DL", "All")          # <--- Full FTPovDNS Data set
+            # self.ftp_data.load_sub_dataset("FTPovDNS-DL", "All")          # <--- Full FTPovDNS Data set
             # self.ftp_data.load_sub_dataset("FTPovDNS-DL-TEST", "All")
-            # self.ftp_data.load_sub_dataset("FTPovDNS-DL-TEST-20", "All")
+            self.ftp_data.load_sub_dataset("FTPovDNS-DL-TEST-20", "All")
             # self.ftp_data.load_sub_dataset("ftp-ovDNS-test-old", "All")
             self.all_test_data.append(self.ftp_data)
+            self.all_unique_labels.append(self.test_dataset_label)
 
         if self.test_dataset_label in ["HTTP-S-ovDNS-Static", "Compare-All"]:
             self.http_s_data = TunnelMiner()
-            self.http_s_data.load_sub_dataset("HTTP-S-ovDNS-Static", "All")
+            # self.http_s_data.load_sub_dataset("HTTP-S-ovDNS-Static", "All")
             # self.http_s_data.load_sub_dataset("HTTP-S-ovDNS-Static-TEST", "All")
-            # self.http_s_data.load_sub_dataset("HTTP-S-ovDNS-Static-TEST-20", "All")
+            self.http_s_data.load_sub_dataset("HTTP-S-ovDNS-Static-TEST-20", "All")
             self.all_test_data.append(self.http_s_data)
+            self.all_unique_labels.append(self.test_dataset_label)
 
         if self.test_dataset_label in ["POP3ovDNS-DL", "Compare-All"]:
             self.pop3_data = TunnelMiner()
-            self.pop3_data.load_sub_dataset("POP3ovDNS-DL", "All")
+            # self.pop3_data.load_sub_dataset("POP3ovDNS-DL", "All")
             # self.pop3_data.load_sub_dataset("POP3ovDNS-DL-TEST", "All")
-            # self.pop3_data.load_sub_dataset("POP3ovDNS-DL-TEST-20", "All")
+            self.pop3_data.load_sub_dataset("POP3ovDNS-DL-TEST-20", "All")
             self.all_test_data.append(self.pop3_data)
+            self.all_unique_labels.append(self.test_dataset_label)
+
+        self.logger.debug("Length of all unique labels list: %i" % len(self.all_unique_labels))
+        # exit()
 
     def select_single_test_pcap(self, specific_label):
         for count, labeled_dataset in enumerate(self.all_test_data):
@@ -67,6 +74,7 @@ class tunKnn(object):
         return self.selected_pcap_json_obj
 
     def get_k_nearest_neighbours_of_single_random(self, k):
+        self.logger.debug("Getting PCAP JSON entropy feature from: %s" % self.selected_pcap_json_obj.single_json_object_data['filename'])
         if self.use_reCalcEntropy == True:
             single_pcap_entropy_list = self.selected_pcap_json_obj.get_single_pcap_json_feature_entropy()
         else:
@@ -124,8 +132,12 @@ class tunKnn(object):
         prediction_list = []
         unique_labels = []
         all_true_labels = []
+
         tp_counter_dict = {}
         knn_tp_counter_dict = {}
+
+        error_counts_dict = {}
+        knn_error_counts_dict = {}
         for count, pcap_group in enumerate(self.all_test_data):
             # tp_counter = 0
             for idx_selected, curr_pcap_json_obj in enumerate(pcap_group.all_json_data_list):
@@ -216,6 +228,10 @@ class tunKnn(object):
                     unique_labels.append(truth_vs_prediction_dict['true_lbl'])
                     tp_counter_dict[truth_vs_prediction_dict['true_lbl']] = 0
                     knn_tp_counter_dict[truth_vs_prediction_dict['true_lbl']] = 0
+
+                    knn_error_counts_dict[truth_vs_prediction_dict['true_lbl'] + '-as-' + majority_label[0][0]] = 0
+                    error_counts_dict[truth_vs_prediction_dict['true_lbl'] + '-as-' + ordered_list[0]['pred_label']] = 0
+
                 # if truth_vs_prediction_dict['true_lbl'] == truth_vs_prediction_dict['predicted'].get(0)['pred_label']:
                 #Rank the list of "-k-" predictions
                 ordered_list = sorted(truth_vs_prediction_dict['predicted'], key=itemgetter('diff'))
@@ -228,7 +244,15 @@ class tunKnn(object):
                     self.logger.debug("First Label from Dict within ORDERED-LIST: %s" % ordered_list[0]['pred_label'])
                     self.logger.debug("Length of Ranked Predictions List: %i" % len(ordered_list))
                     tp_counter_dict[truth_vs_prediction_dict['true_lbl']] += 1
+                else: # Calculate prediction errors
+                    # error_counts_dict[truth_vs_prediction_dict['true_lbl']+'-as-'+ordered_list[0]['pred_label']] = 0
+                    for true_lbl in self.all_unique_labels:
+                        if truth_vs_prediction_dict['true_lbl'] != true_lbl:
+                            if ordered_list[0]['pred_label'] == true_lbl:
+                                error_counts_dict[truth_vs_prediction_dict['true_lbl']+'-as-'+ordered_list[0]['pred_label']] +=1
 
+
+                # Check for k-NN (k-Nearest Neighbours)
                 if k > 1:
                     list_of_pred_labels = [pred_labels['pred_label'] for pred_labels in ordered_list]
 
@@ -240,6 +264,16 @@ class tunKnn(object):
                         self.logger.debug("True label from dict: %s" % truth_vs_prediction_dict['true_lbl'])
                         self.logger.debug("Majority Label: %s" % majority_label[0][0])
                         knn_tp_counter_dict[truth_vs_prediction_dict['true_lbl']] += 1
+                    else: # Calculate prediction errors
+                        # knn_error_counts_dict[truth_vs_prediction_dict['true_lbl'] + '-as-' + majority_label[0][0]] = 0
+                        self.logger.debug("Num UNIQUE LABELS: %i : %s" % (len(self.all_unique_labels), self.all_unique_labels))
+                        if len(self.all_unique_labels) < 4: exit()
+                        for true_lbl in self.all_unique_labels:
+                            if truth_vs_prediction_dict['true_lbl'] != true_lbl:
+                                if majority_label[0][0] == true_lbl:
+                                    knn_error_counts_dict[
+                                        truth_vs_prediction_dict['true_lbl'] + '-as-' + majority_label[0][0]] += 1
+
 
         for idx, dict_item in enumerate(prediction_list):
             self.logger.debug("PCAP:[%i]-%s" % (idx, dict_item))
@@ -248,7 +282,7 @@ class tunKnn(object):
         self.logger.info("1-NN True Positives: %s" % tp_counter_dict)
         self.logger.info("%i-NN True Positives: %s" % (k, knn_tp_counter_dict))
         self.logger.info("Class Label Test Summary Info: %s" % Counter(all_true_labels))
-
+        self.logger.info("MISCLASSIFICATIONS: %s" % error_counts_dict)
 
 
 knn_test = tunKnn("Compare-All")
@@ -260,4 +294,5 @@ knn_test = tunKnn("Compare-All")
 
 # knn_test.get_k_nearest_neighbours_of_single_random(1)
 
+# knn_test.get_k_nearest_neighbours_all(1)
 knn_test.get_k_nearest_neighbours_all(5)
