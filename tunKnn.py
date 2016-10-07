@@ -131,6 +131,8 @@ class tunKnn(object):
     def get_k_nearest_neighbours_all(self, k):
         prediction_list = []
         unique_labels = []
+        one_nn_true_lbl_false_preds_pairs = []
+        knn_true_lbl_false_preds_pairs = []
         all_true_labels = []
 
         tp_counter_dict = {}
@@ -229,8 +231,8 @@ class tunKnn(object):
                     tp_counter_dict[truth_vs_prediction_dict['true_lbl']] = 0
                     knn_tp_counter_dict[truth_vs_prediction_dict['true_lbl']] = 0
 
-                    knn_error_counts_dict[truth_vs_prediction_dict['true_lbl'] + '-as-' + majority_label[0][0]] = 0
-                    error_counts_dict[truth_vs_prediction_dict['true_lbl'] + '-as-' + ordered_list[0]['pred_label']] = 0
+                    # knn_error_counts_dict[truth_vs_prediction_dict['true_lbl'] + '-as-' + majority_label[0][0]] = 0
+                    # error_counts_dict[truth_vs_prediction_dict['true_lbl'] + '-as-' + ordered_list[0]['pred_label']] = 0
 
                 # if truth_vs_prediction_dict['true_lbl'] == truth_vs_prediction_dict['predicted'].get(0)['pred_label']:
                 #Rank the list of "-k-" predictions
@@ -245,11 +247,15 @@ class tunKnn(object):
                     self.logger.debug("Length of Ranked Predictions List: %i" % len(ordered_list))
                     tp_counter_dict[truth_vs_prediction_dict['true_lbl']] += 1
                 else: # Calculate prediction errors
-                    # error_counts_dict[truth_vs_prediction_dict['true_lbl']+'-as-'+ordered_list[0]['pred_label']] = 0
-                    for true_lbl in self.all_unique_labels:
-                        if truth_vs_prediction_dict['true_lbl'] != true_lbl:
-                            if ordered_list[0]['pred_label'] == true_lbl:
-                                error_counts_dict[truth_vs_prediction_dict['true_lbl']+'-as-'+ordered_list[0]['pred_label']] +=1
+                    str_false_pred = truth_vs_prediction_dict['true_lbl']+'-as-'+ordered_list[0]['pred_label']
+                    if str_false_pred not in one_nn_true_lbl_false_preds_pairs : # New occurrence of false prediction
+                        one_nn_true_lbl_false_preds_pairs.append(str_false_pred)
+                        error_counts_dict[truth_vs_prediction_dict['true_lbl']+'-as-'+ordered_list[0]['pred_label']] = 1
+                    else:
+                        # for true_lbl in self.all_unique_labels:
+                        #     if truth_vs_prediction_dict['true_lbl'] != true_lbl:
+                        #         if ordered_list[0]['pred_label'] == true_lbl:
+                        error_counts_dict[truth_vs_prediction_dict['true_lbl']+'-as-'+ordered_list[0]['pred_label']] +=1
 
 
                 # Check for k-NN (k-Nearest Neighbours)
@@ -265,14 +271,18 @@ class tunKnn(object):
                         self.logger.debug("Majority Label: %s" % majority_label[0][0])
                         knn_tp_counter_dict[truth_vs_prediction_dict['true_lbl']] += 1
                     else: # Calculate prediction errors
-                        # knn_error_counts_dict[truth_vs_prediction_dict['true_lbl'] + '-as-' + majority_label[0][0]] = 0
-                        self.logger.debug("Num UNIQUE LABELS: %i : %s" % (len(self.all_unique_labels), self.all_unique_labels))
-                        if len(self.all_unique_labels) < 4: exit()
-                        for true_lbl in self.all_unique_labels:
-                            if truth_vs_prediction_dict['true_lbl'] != true_lbl:
-                                if majority_label[0][0] == true_lbl:
-                                    knn_error_counts_dict[
-                                        truth_vs_prediction_dict['true_lbl'] + '-as-' + majority_label[0][0]] += 1
+                        knn_str_false_pred = truth_vs_prediction_dict['true_lbl'] + '-as-' + majority_label[0][0]
+                        if knn_str_false_pred not in knn_true_lbl_false_preds_pairs: # New occurrence of false prediction
+                            knn_true_lbl_false_preds_pairs.append(knn_str_false_pred)
+                            knn_error_counts_dict[truth_vs_prediction_dict['true_lbl'] + '-as-' + majority_label[0][0]] = 1
+                        else:
+                            # self.logger.debug("Num UNIQUE LABELS: %i : %s" % (len(self.all_unique_labels), self.all_unique_labels))
+                            # if len(self.all_unique_labels) < 4: exit()
+                            # for true_lbl in self.all_unique_labels:
+                            #     if truth_vs_prediction_dict['true_lbl'] != true_lbl:
+                            #         if majority_label[0][0] == true_lbl:
+                            knn_error_counts_dict[truth_vs_prediction_dict['true_lbl'] +
+                                                              '-as-' + majority_label[0][0]] += 1
 
 
         for idx, dict_item in enumerate(prediction_list):
@@ -282,7 +292,8 @@ class tunKnn(object):
         self.logger.info("1-NN True Positives: %s" % tp_counter_dict)
         self.logger.info("%i-NN True Positives: %s" % (k, knn_tp_counter_dict))
         self.logger.info("Class Label Test Summary Info: %s" % Counter(all_true_labels))
-        self.logger.info("MISCLASSIFICATIONS: %s" % error_counts_dict)
+        self.logger.info("1-NN MISCLASSIFICATIONS: %s" % error_counts_dict)
+        self.logger.info("%i-NN MISCLASSIFICATIONS: %s" % (k, knn_error_counts_dict))
 
 
 knn_test = tunKnn("Compare-All")
