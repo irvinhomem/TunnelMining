@@ -149,6 +149,18 @@ class Single_PCAP_JSON(object):
 
         self.single_json_object_data = json_data
 
+    def get_single_pcap_json_feature_values_from_file(self, feat_name):
+        pcap_json_item = self.single_json_object_data
+        single_pcap_feature_value_list = None
+        for feat_num, feature in enumerate(pcap_json_item['props']):
+            self.logger.debug("Json Number of features: %s" % len(pcap_json_item['props']))
+            self.logger.debug("Json features: %s" % len(pcap_json_item['props'][feat_num]))
+            self.logger.debug("Json Data Feature Name: %s" % str(pcap_json_item['props'][feat_num]['feature_name']))
+            if pcap_json_item['props'][feat_num]['feature_name'] == feat_name:
+                single_pcap_feature_value_list = pcap_json_item['props'][feat_num]['values']
+
+        return single_pcap_feature_value_list
+
     def get_single_pcap_json_feature_entropy_from_file(self):
         pcap_json_item = self.single_json_object_data
         single_pcap_entropy_list = None
@@ -160,7 +172,8 @@ class Single_PCAP_JSON(object):
                                                                        "HTTP-Req-Bytes-Entropy",
                                                                        "FTP-Req-Bytes-Entropy",
                                                                        "HTTP-S-Req-Bytes-Entropy",
-                                                                       "POP3-Req-Bytes-Entropy"]:
+                                                                       "POP3-Req-Bytes-Entropy",
+                                                                     "DNS-Req-Qnames-Enc-Comp-Entropy-50-bytes"]:
                 single_pcap_entropy_list = pcap_json_item['props'][feat_num]['values']
 
         return single_pcap_entropy_list
