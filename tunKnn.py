@@ -57,10 +57,10 @@ class tunKnn(object):
             # self.pop3_data.load_sub_dataset("POP3ovDNS-DL", "All")
             # self.pop3_data.load_sub_dataset("POP3ovDNS-DL-TEST", "All")
             # self.pop3_data.load_sub_dataset("POP3ovDNS-DL-TEST-20", "All")
-            self.pop3_data.load_sub_dataset("POP3ovDNS-DL-ATT", "All")
+            # self.pop3_data.load_sub_dataset("POP3ovDNS-DL-5-ATT", "All")
             # self.pop3_data.load_sub_dataset("POP3ovDNS-DL-3emails-ATT", "All")
             # self.pop3_data.load_sub_dataset("POP3ovDNS-DL-7emails-ATT", "All")
-            # self.pop3_data.load_sub_dataset("POP3ovDNS-DL-5txt-ATT", "All")
+            self.pop3_data.load_sub_dataset("POP3ovDNS-DL-5txt-ATT", "All")
             # self.pop3_data.load_sub_dataset("POP3ovDNS-DL-Mixed", "All")
             self.all_test_data.append(self.pop3_data)
             self.all_unique_labels.append(self.test_dataset_label)
@@ -136,7 +136,7 @@ class tunKnn(object):
         self.logger.debug("ORDERED-DICT of labels: %s" % neighbour_proto_lbls)
         self.logger.debug("ORDERED-DICT of neighbour names: %s" % neighbour_pcap_name)
 
-    def get_k_nearest_neighbours_all(self, k):
+    def get_k_nearest_neighbours_single_feature_all(self, k, feature_name):
         prediction_list = []
         unique_labels = []
         one_nn_true_lbl_false_preds_pairs = []
@@ -158,8 +158,8 @@ class tunKnn(object):
                     curr_pcap_entropy_list = curr_pcap_json_obj.get_single_pcap_json_feature_entropy()
                 else:
                     # curr_pcap_entropy_list = curr_pcap_json_obj.get_single_pcap_json_feature_entropy_from_file()
-                    curr_pcap_entropy_list = curr_pcap_json_obj.get_single_pcap_json_feature_values_from_file(
-                        "DNS-Req-Qnames-Enc-Comp-Entropy-50-bytes")
+                    curr_pcap_entropy_list = curr_pcap_json_obj.get_single_pcap_json_feature_values_from_file(feature_name)
+
                 lbl_of_curr_pcap = curr_pcap_json_obj.single_json_object_data['protocol']
                 all_true_labels.append(lbl_of_curr_pcap) # To eventually be used for Counter
                 avg_of_curr_obj = np.average(curr_pcap_entropy_list)
@@ -175,8 +175,7 @@ class tunKnn(object):
                         if self.use_reCalcEntropy:
                             pcap_entropy_list = pcap_json_item.get_single_pcap_json_feature_entropy()
                         else:
-                            pcap_entropy_list = pcap_json_item.get_single_pcap_json_feature_values_from_file(
-                                "DNS-Req-Qnames-Enc-Comp-Entropy-50-bytes")
+                            pcap_entropy_list = pcap_json_item.get_single_pcap_json_feature_values_from_file(feature_name)
 
                         self.logger.debug("Entropy List length: %i" % len(pcap_entropy_list))
                         entropy_avg = np.average(pcap_entropy_list)
@@ -317,4 +316,8 @@ knn_test = tunKnn("Compare-All")
 # knn_test.get_k_nearest_neighbours_of_single_random(1)
 
 # knn_test.get_k_nearest_neighbours_all(1)
-knn_test.get_k_nearest_neighbours_all(5)
+# knn_test.get_k_nearest_neighbours_single_feature_all(5, "DNS-Req-Qnames-Enc-Comp-Entropy-50-bytes")
+# knn_test.get_k_nearest_neighbours_single_feature_all(5, "DNS-Req-Qnames-Enc-Comp-Entropy-20-bytes")
+# knn_test.get_k_nearest_neighbours_single_feature_all(5, "DNS-Req-Qnames-Enc-Comp-Entropy")    # Gives good distintion between HTTP and HTTPS
+knn_test.get_k_nearest_neighbours_single_feature_all(5, "IP-Req-Lens")                        # Gives good distinction between FTP and POP3
+# knn_test.get_k_nearest_neighbours_single_feature_all(5, "DNS-Req-Lens")
