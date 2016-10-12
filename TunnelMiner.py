@@ -156,6 +156,7 @@ class Single_PCAP_JSON(object):
             self.logger.debug("Json Number of features: %s" % len(pcap_json_item['props']))
             self.logger.debug("Json features: %s" % len(pcap_json_item['props'][feat_num]))
             self.logger.debug("Json Data Feature Name: %s" % str(pcap_json_item['props'][feat_num]['feature_name']))
+
             if pcap_json_item['props'][feat_num]['feature_name'] == feat_name:
                 single_pcap_feature_value_list = pcap_json_item['props'][feat_num]['values']
 
