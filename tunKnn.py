@@ -318,6 +318,6 @@ knn_test = tunKnn("Compare-All")
 # knn_test.get_k_nearest_neighbours_all(1)
 # knn_test.get_k_nearest_neighbours_single_feature_all(5, "DNS-Req-Qnames-Enc-Comp-Entropy-50-bytes")
 # knn_test.get_k_nearest_neighbours_single_feature_all(5, "DNS-Req-Qnames-Enc-Comp-Entropy-20-bytes")
-# knn_test.get_k_nearest_neighbours_single_feature_all(5, "DNS-Req-Qnames-Enc-Comp-Entropy")    # Gives good distintion between HTTP and HTTPS
-knn_test.get_k_nearest_neighbours_single_feature_all(5, "IP-Req-Lens")                        # Gives good distinction between FTP and POP3
+knn_test.get_k_nearest_neighbours_single_feature_all(5, "DNS-Req-Qnames-Enc-Comp-Entropy")    # Gives good distintion between HTTP and HTTPS
+#knn_test.get_k_nearest_neighbours_single_feature_all(5, "IP-Req-Lens")                        # Gives good distinction between FTP and POP3
 # knn_test.get_k_nearest_neighbours_single_feature_all(5, "DNS-Req-Lens")
