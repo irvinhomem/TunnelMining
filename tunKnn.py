@@ -311,13 +311,7 @@ class tunKnn(object):
         # For 1-NN
         self.logger.info("1-NN:")
         self.logger.info("-------")
-        # all_true_pos = 0
-        # all_labels_total = 0
-        # for item in tp_counter_dict:
-        #     #self.logger.debug(item)
-        #     self.logger.debug("%s : %s " % (item, tp_counter_dict[item]))
-        #     all_true_pos += int(tp_counter_dict[item])
-        #     all_labels_total += int(Counter(all_true_labels)[item])
+
 
         all_labels_total = sum(Counter(all_true_labels).values())
         self.logger.info("All labels sum: %i" % all_labels_total)
@@ -338,6 +332,16 @@ class tunKnn(object):
         self.logger.info("-----> Also equal to (1- Accuracy): %.5f" % (1-accuracy_val))
 
         # True-Positives Rate (Recall, Sensitivity) per Class
+        # all_true_pos = 0
+        # all_labels_total = 0
+        for item in tp_counter_dict:
+            #self.logger.debug(item)
+            self.logger.debug("%s : %s " % (item, tp_counter_dict[item]))
+            self.logger.debug("True Positive Rate / Recall / Sensitivity - %s : %s " %
+                              (item, (tp_counter_dict[item]/Counter(all_true_labels)[item])))
+
+        #     all_true_pos += int(tp_counter_dict[item])
+        #     all_labels_total += int(Counter(all_true_labels)[item])
 
         # Specificity (True Negative Rate)
 
