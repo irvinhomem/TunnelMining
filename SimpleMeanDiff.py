@@ -32,8 +32,9 @@ class SimpleMeanDiff(object):
         if self.test_dataset_label == "HTTP-S-ovDNS-Static":
             self.test_dataset.load_sub_dataset("HTTP-S-ovDNS-Static", "All")
 
-        if self.test_dataset_label == "POP3ovDNS-DL":
-            self.test_dataset.load_sub_dataset("POP3ovDNS-DL", "All")
+        if self.test_dataset_label == "POP3ovDNS-DL-5txt-ATT":
+            #self.test_dataset.load_sub_dataset("POP3ovDNS-DL", "All")
+            self.test_dataset.load_sub_dataset("POP3ovDNS-DL-5txt-ATT", "All")
 
         # Load the ground truth values -----------------------------
         self.http_ground = TunnelMiner()
@@ -202,7 +203,7 @@ class SimpleMeanDiff(object):
         - Selects 90% of the packets of the shorter sample (used 95% at some point)
         :return:
         '''
-        newSeqLen = (int(math.ceil(0.90 * len(fullTestSeq)))
+        newSeqLen = (int(math.ceil(0.90 * len(fullTestSeq)))        #originally this value was 0.95 ... then changed to 0.90, 0.80, 0.70
                      if len(fullTestSeq) < len(fullGrndTruthSeq)
                      else int(math.ceil(0.90 * len(fullGrndTruthSeq))))
         # print("New Equalized Sequence Length: ", newSeqLen)
@@ -255,10 +256,10 @@ class SimpleMeanDiff(object):
         return multiSampleSeq
 
 
-mean_diff_tester = SimpleMeanDiff("FTPovDNS-DL")
-# mean_diff_tester = SimpleMeanDiff("HTTPovDNS-Static")
-# mean_diff_tester = SimpleMeanDiff("HTTP-S-ovDNS-Static")
-# mean_diff_tester = SimpleMeanDiff("POP3ovDNS-DL")
+#mean_diff_tester = SimpleMeanDiff("FTPovDNS-DL")
+#mean_diff_tester = SimpleMeanDiff("HTTPovDNS-Static")
+#mean_diff_tester = SimpleMeanDiff("HTTP-S-ovDNS-Static")
+mean_diff_tester = SimpleMeanDiff("POP3ovDNS-DL-5txt-ATT")
 
 
 the_predictions = mean_diff_tester.get_Mean_Diff_Avg_Score_n_predict()
