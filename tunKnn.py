@@ -298,12 +298,55 @@ class tunKnn(object):
         for idx, dict_item in enumerate(prediction_list):
             self.logger.debug("PCAP:[%i]-%s" % (idx, dict_item))
 
-        self.logger.info("----------------------------------------")
+        self.logger.info("========================================")
         self.logger.info("1-NN True Positives: %s" % tp_counter_dict)
         self.logger.info("%i-NN True Positives: %s" % (k, knn_tp_counter_dict))
         self.logger.info("Class Label Test Summary Info: %s" % Counter(all_true_labels))
         self.logger.info("1-NN MISCLASSIFICATIONS: %s" % error_counts_dict)
         self.logger.info("%i-NN MISCLASSIFICATIONS: %s" % (k, knn_error_counts_dict))
+        self.logger.info("-----------------------------------------")
+        self.logger.info("Performance Measures:")
+        self.logger.info("-----------------------------------------")
+
+        # For 1-NN
+        self.logger.info("1-NN:")
+        self.logger.info("-------")
+        # all_true_pos = 0
+        # all_labels_total = 0
+        # for item in tp_counter_dict:
+        #     #self.logger.debug(item)
+        #     self.logger.debug("%s : %s " % (item, tp_counter_dict[item]))
+        #     all_true_pos += int(tp_counter_dict[item])
+        #     all_labels_total += int(Counter(all_true_labels)[item])
+
+        all_labels_total = sum(Counter(all_true_labels).values())
+        self.logger.info("All labels sum: %i" % all_labels_total)
+
+        # Confusion Matrix
+
+        # Accuracy:
+        all_true_pos = sum(tp_counter_dict.values())
+        self.logger.info("All true positive sum: %i" % all_true_pos)
+        accuracy_val = all_true_pos/all_labels_total
+        self.logger.info("--> Accuracy: %.5f" % accuracy_val)
+
+        # Misclassification Rate:
+        all_fpos_and_all_fneg = sum(error_counts_dict.values())
+        self.logger.info("All False Pos + All False Neg: %.5f" % all_fpos_and_all_fneg)
+        misclassification_rate = all_fpos_and_all_fneg/all_labels_total
+        self.logger.info("--> Misclassification Rate: %.5f" % misclassification_rate)
+        self.logger.info("-----> Also equal to (1- Accuracy): %.5f" % (1-accuracy_val))
+
+        # True-Positives Rate (Recall, Sensitivity) per Class
+
+        # Specificity (True Negative Rate)
+
+        # Precision (Positive predictive value)
+
+
+
+        #self.logger.debug(item[str(item)])
+
 
 
 knn_test = tunKnn("Compare-All")
