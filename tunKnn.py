@@ -322,13 +322,13 @@ class tunKnn(object):
         all_true_pos = sum(tp_counter_dict.values())
         self.logger.info("All true positive sum: %i" % all_true_pos)
         accuracy_val = all_true_pos/all_labels_total
-        self.logger.info("--> Accuracy: %.5f" % accuracy_val)
+        self.logger.info("--> ACCURACY: %.5f" % accuracy_val)
 
         # Misclassification Rate:
         all_fpos_and_all_fneg = sum(error_counts_dict.values())
         self.logger.info("All False Pos + All False Neg: %.5f" % all_fpos_and_all_fneg)
         misclassification_rate = all_fpos_and_all_fneg/all_labels_total
-        self.logger.info("--> Misclassification Rate: %.5f" % misclassification_rate)
+        self.logger.info("--> MISCLASSIFICATION RATE: %.5f" % misclassification_rate)
         self.logger.info("-----> Also equal to (1- Accuracy): %.5f" % (1-accuracy_val))
 
         # True-Positives Rate (Recall, Sensitivity) per Class
@@ -337,8 +337,8 @@ class tunKnn(object):
         for item in tp_counter_dict:
             #self.logger.debug(item)
             self.logger.debug("%s : %s " % (item, tp_counter_dict[item]))
-            self.logger.debug("True Positive Rate / Recall / Sensitivity - %s : %s " %
-                              (item, (tp_counter_dict[item]/Counter(all_true_labels)[item])))
+            self.logger.debug("--> True +ve Rate/RECALL/Sensitivity - %s: %s " %
+                              (item, (tp_counter_dict[item] / Counter(all_true_labels)[item])))
 
         #     all_true_pos += int(tp_counter_dict[item])
         #     all_labels_total += int(Counter(all_true_labels)[item])
