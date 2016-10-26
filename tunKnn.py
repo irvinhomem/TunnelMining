@@ -7,6 +7,8 @@ import numpy as np
 from collections import OrderedDict, Counter
 from operator import itemgetter
 
+from terminaltables import AsciiTable
+
 
 class tunKnn(object):
 
@@ -316,8 +318,6 @@ class tunKnn(object):
         all_labels_total = sum(Counter(all_true_labels).values())
         self.logger.info("All labels sum: %i" % all_labels_total)
 
-        # Confusion Matrix
-
         # Accuracy:
         all_true_pos = sum(tp_counter_dict.values())
         self.logger.info("All true positive sum: %i" % all_true_pos)
@@ -326,22 +326,83 @@ class tunKnn(object):
 
         # Misclassification Rate:
         all_fpos_and_all_fneg = sum(error_counts_dict.values())
-        self.logger.info("All False Pos + All False Neg: %.5f" % all_fpos_and_all_fneg)
+        self.logger.info("All False Pos + All False Neg: %i" % all_fpos_and_all_fneg)
         misclassification_rate = all_fpos_and_all_fneg/all_labels_total
         self.logger.info("--> MISCLASSIFICATION RATE: %.5f" % misclassification_rate)
         self.logger.info("-----> Also equal to (1- Accuracy): %.5f" % (1-accuracy_val))
 
-        # True-Positives Rate (Recall, Sensitivity) per Class
-        # all_true_pos = 0
-        # all_labels_total = 0
-        for item in tp_counter_dict:
-            #self.logger.debug(item)
-            self.logger.debug("%s : %s " % (item, tp_counter_dict[item]))
-            self.logger.debug("--> True +ve Rate/RECALL/Sensitivity - %s: %s " %
-                              (item, (tp_counter_dict[item] / Counter(all_true_labels)[item])))
+        # Confusion Matrix
+        conf_matrix_data = []
+        conf_matrix_header1 = ['']
+        conf_matrix_header1.append("Reference / Actual")
+        col_titles = ['']
+        row_data = []
 
-        #     all_true_pos += int(tp_counter_dict[item])
-        #     all_labels_total += int(Counter(all_true_labels)[item])
+        # Organize Confusion Matrix
+        conf_matrix_data.append(conf_matrix_header1)
+        conf_matrix_data.append(col_titles)
+
+        # True-Positives Rate (Recall, Sensitivity) per Class
+        #self.logger.debug("Len list_of_pred_labels: %i" % len(list_of_pred_labels))
+        self.logger.debug("Len unique_labels: %i" % len(unique_labels))
+        for label_key, label_value in tp_counter_dict.items():
+            #self.logger.debug(item)
+            #self.logger.info("%s : %s " % (item, tp_counter_dict[item]))
+            self.logger.info("%s : %s " % (label_key, label_value))
+            self.logger.info("--> True +ve Rate/RECALL/Sensitivity - %s: %s " %
+                              (label_key, (label_value / Counter(all_true_labels)[label_key])))
+
+            col_titles.append(label_key)
+            pred_error_count = 0
+            col_1 = label_key
+            predictions_per_row = []
+            predictions_per_row.append(col_1)
+            # idx_counter += 1
+            pred_val = 0
+            for idx_ctr in range(len(col_titles)):
+                pred_val = 0
+                if idx_ctr == len(col_titles)-2:    # -2 because of the first entry as the row index name/label
+                    #pred_val = label_value
+                    predictions_per_row.append(label_value)
+                else:
+                    # Check for other error rates
+                    for key_name, error_item_value in error_counts_dict.items():
+                        if label_key in key_name.split("-as-")[1]:
+                            # pred_error_count += error_counts_dict[error_item]
+                            #pred_val = error_item_value
+                            predictions_per_row.append(error_item_value)
+                        else:
+                            #pred_val = 0
+                            predictions_per_row.append(0)
+
+                # predictions_per_row.append(pred_val)
+
+
+            # for idx, lbl in enumerate(col_titles):
+            #     if lbl == label_value:
+            #predictions_per_row.append(label_value)
+                #else:
+            # pred_val = 0
+            # for key, error_item_value in error_counts_dict.items():
+            #     if label_key in key.split("-as-")[0]:
+            #         # pred_error_count += error_counts_dict[error_item]
+            #         pred_val = error_item_value
+            #     else:
+            #         pred_val = 0
+            #
+            #     predictions_per_row.append(pred_val)
+
+
+
+
+            conf_matrix_data.append(predictions_per_row)
+
+
+
+        # Output the confusion matrix
+        conf_matrix_table = AsciiTable(conf_matrix_data)
+        #print(conf_matrix_table.table)
+        self.logger.info("Confusion Matrix: \n%s" % conf_matrix_table.table)
 
         # Specificity (True Negative Rate)
 
