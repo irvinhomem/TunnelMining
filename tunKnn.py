@@ -372,8 +372,9 @@ class tunKnn(object):
                             #pred_val = error_item_value
                             predictions_per_row.append(error_item_value)
                         else:
+                            pass
                             #pred_val = 0
-                            predictions_per_row.append(0)
+                            # predictions_per_row.append(0)
 
                 # predictions_per_row.append(pred_val)
 
