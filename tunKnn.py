@@ -314,6 +314,50 @@ class tunKnn(object):
         self.logger.info("1-NN:")
         self.logger.info("-------")
 
+        # Confusion Matrix
+        conf_matrix_all_row_data = []
+        conf_matrix_header1 = ['']
+        conf_matrix_header1.append("Predictions")
+        col_titles = ['']
+
+        # # Organize Confusion Matrix
+        conf_matrix_all_row_data.append(conf_matrix_header1)
+
+        class_labels_list = tp_counter_dict.keys()
+
+        for lbl in class_labels_list:
+            col_titles.append(lbl)
+            self.logger.debug("Current lbl COLUMN NAME: %s" % lbl)
+        self.logger.debug("Length of Column Titles list: %i" % len(col_titles))
+
+        conf_matrix_all_row_data.append(col_titles)
+
+        for lbl in class_labels_list:
+            #col_titles.append(lbl)
+            single_row_data = []
+            self.logger.debug("Current Class LABEL: %s" % lbl)
+            single_row_data.append(lbl)
+            # Check index of current Column-Title
+            #for col_idx, col_lbl in enumerate(col_titles):
+            for col_idx, col_lbl in enumerate(class_labels_list):
+                error_lbls = str(single_row_data[0]) + "-as-" + col_lbl
+                self.logger.debug("Current Error Label: %s" % error_lbls)
+                if single_row_data[0] == col_lbl:
+                    single_row_data.append(tp_counter_dict[col_lbl])
+                # elif error_counts_dict.keys() contains single_row_data[0]  and col_lbl ==
+                elif error_lbls in error_counts_dict.keys():
+                    single_row_data.append(error_counts_dict[error_lbls])
+                else:
+                    single_row_data.append(0)
+
+            conf_matrix_all_row_data.append(single_row_data)
+
+            #single_row_data.insert()
+
+        # Output the confusion matrix
+        conf_matrix_table = AsciiTable(conf_matrix_all_row_data)
+        # print(conf_matrix_table.table)
+        self.logger.info("1-NN Confusion Matrix: \n%s" % conf_matrix_table.table)
 
         all_labels_total = sum(Counter(all_true_labels).values())
         self.logger.info("All labels sum: %i" % all_labels_total)
@@ -331,17 +375,6 @@ class tunKnn(object):
         self.logger.info("--> MISCLASSIFICATION RATE: %.5f" % misclassification_rate)
         self.logger.info("-----> Also equal to (1- Accuracy): %.5f" % (1-accuracy_val))
 
-        # Confusion Matrix
-        conf_matrix_data = []
-        conf_matrix_header1 = ['']
-        conf_matrix_header1.append("Reference / Actual")
-        col_titles = ['']
-        row_data = []
-
-        # Organize Confusion Matrix
-        conf_matrix_data.append(conf_matrix_header1)
-        conf_matrix_data.append(col_titles)
-
         # True-Positives Rate (Recall, Sensitivity) per Class
         #self.logger.debug("Len list_of_pred_labels: %i" % len(list_of_pred_labels))
         self.logger.debug("Len unique_labels: %i" % len(unique_labels))
@@ -349,30 +382,32 @@ class tunKnn(object):
             #self.logger.debug(item)
             #self.logger.info("%s : %s " % (item, tp_counter_dict[item]))
             self.logger.info("%s : %s " % (label_key, label_value))
-            self.logger.info("--> True +ve Rate/RECALL/Sensitivity - %s: %s " %
-                              (label_key, (label_value / Counter(all_true_labels)[label_key])))
+            self.logger.info("--> True +ve Rate/RECALL/Sensitivity - %s: %s = %.3f%% " %
+                              (label_key, (label_value / Counter(all_true_labels)[label_key]),
+                                           (label_value / Counter(all_true_labels)[label_key]*100)))
 
-            col_titles.append(label_key)
-            pred_error_count = 0
-            col_1 = label_key
-            predictions_per_row = []
-            predictions_per_row.append(col_1)
-            # idx_counter += 1
-            pred_val = 0
-            for idx_ctr in range(len(col_titles)):
-                pred_val = 0
-                if idx_ctr == len(col_titles)-2:    # -2 because of the first entry as the row index name/label
-                    #pred_val = label_value
-                    predictions_per_row.append(label_value)
-                else:
-                    # Check for other error rates
-                    for key_name, error_item_value in error_counts_dict.items():
-                        if label_key in key_name.split("-as-")[1]:
-                            # pred_error_count += error_counts_dict[error_item]
-                            #pred_val = error_item_value
-                            predictions_per_row.append(error_item_value)
-                        else:
-                            pass
+
+            # col_titles.append(label_key)
+            # pred_error_count = 0
+            # col_1 = label_key
+            # predictions_per_row = []
+            # predictions_per_row.append(col_1)
+            # # idx_counter += 1
+            # pred_val = 0
+            # for idx_ctr in range(len(col_titles)):
+            #     pred_val = 0
+            #     if idx_ctr == len(col_titles)-2:    # -2 because of the first entry as the row index name/label
+            #         #pred_val = label_value
+            #         predictions_per_row.append(label_value)
+            #     else:
+            #         # Check for other error rates
+            #         for key_name, error_item_value in error_counts_dict.items():
+            #             if label_key in key_name.split("-as-")[1]:
+            #                 # pred_error_count += error_counts_dict[error_item]
+            #                 #pred_val = error_item_value
+            #                 predictions_per_row.append(error_item_value)
+            #             else:
+            #                 pass
                             #pred_val = 0
                             # predictions_per_row.append(0)
 
@@ -396,14 +431,11 @@ class tunKnn(object):
 
 
 
-            conf_matrix_data.append(predictions_per_row)
+            #conf_matrix_data.append(predictions_per_row)
 
 
 
-        # Output the confusion matrix
-        conf_matrix_table = AsciiTable(conf_matrix_data)
-        #print(conf_matrix_table.table)
-        self.logger.info("Confusion Matrix: \n%s" % conf_matrix_table.table)
+
 
         # Specificity (True Negative Rate)
 
