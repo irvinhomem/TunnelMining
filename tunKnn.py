@@ -17,8 +17,8 @@ class tunKnn(object):
         logging.basicConfig(level=logging.INFO)
         # logging.basicConfig(level=logging.WARNING)
         self.logger = logging.getLogger(__name__)
-        # self.logger.setLevel(logging.INFO)
-        self.logger.setLevel(logging.DEBUG)
+        self.logger.setLevel(logging.INFO)
+        #self.logger.setLevel(logging.DEBUG)
         # self.logger.setLevel(logging.WARNING)
 
         self.use_reCalcEntropy = False
@@ -143,7 +143,7 @@ class tunKnn(object):
         unique_labels = []
         one_nn_true_lbl_false_preds_pairs = []
         knn_true_lbl_false_preds_pairs = []
-        all_true_labels = []
+        all_actual_labels = []
 
         tp_counter_dict = {}
         knn_tp_counter_dict = {}
@@ -163,7 +163,7 @@ class tunKnn(object):
                     curr_pcap_entropy_list = curr_pcap_json_obj.get_single_pcap_json_feature_values_from_file(feature_name)
 
                 lbl_of_curr_pcap = curr_pcap_json_obj.single_json_object_data['protocol']
-                all_true_labels.append(lbl_of_curr_pcap) # To eventually be used for Counter
+                all_actual_labels.append(lbl_of_curr_pcap) # To eventually be used for Counter
                 avg_of_curr_obj = np.average(curr_pcap_entropy_list)
                 self.logger.debug("Average Entropy of Selected Test Object: %.8f" % avg_of_curr_obj)
 
@@ -303,7 +303,7 @@ class tunKnn(object):
         self.logger.info("========================================")
         self.logger.info("1-NN True Positives: %s" % tp_counter_dict)
         self.logger.info("%i-NN True Positives: %s" % (k, knn_tp_counter_dict))
-        self.logger.info("Class Label Test Summary Info: %s" % Counter(all_true_labels))
+        self.logger.info("Class Label Test Summary Info: %s" % Counter(all_actual_labels))
         self.logger.info("1-NN MISCLASSIFICATIONS: %s" % error_counts_dict)
         self.logger.info("%i-NN MISCLASSIFICATIONS: %s" % (k, knn_error_counts_dict))
         self.logger.info("-----------------------------------------")
@@ -359,88 +359,63 @@ class tunKnn(object):
         # print(conf_matrix_table.table)
         self.logger.info("1-NN Confusion Matrix: \n%s" % conf_matrix_table.table)
 
-        all_labels_total = sum(Counter(all_true_labels).values())
+        all_labels_total = sum(Counter(all_actual_labels).values())
         self.logger.info("All labels sum: %i" % all_labels_total)
 
         # Accuracy:
         all_true_pos = sum(tp_counter_dict.values())
         self.logger.info("All true positive sum: %i" % all_true_pos)
         accuracy_val = all_true_pos/all_labels_total
-        self.logger.info("--> ACCURACY: %.5f" % accuracy_val)
+        self.logger.info("--> ACCURACY: %.5f = %.2f%%" % (accuracy_val, accuracy_val*100))
 
         # Misclassification Rate:
         all_fpos_and_all_fneg = sum(error_counts_dict.values())
         self.logger.info("All False Pos + All False Neg: %i" % all_fpos_and_all_fneg)
         misclassification_rate = all_fpos_and_all_fneg/all_labels_total
         self.logger.info("--> MISCLASSIFICATION RATE: %.5f" % misclassification_rate)
-        self.logger.info("-----> Also equal to (1- Accuracy): %.5f" % (1-accuracy_val))
+        self.logger.debug("--> Also equal to (1- Accuracy): %.5f" % (1-accuracy_val))
 
         # True-Positives Rate (Recall, Sensitivity) per Class
         #self.logger.debug("Len list_of_pred_labels: %i" % len(list_of_pred_labels))
         self.logger.debug("Len unique_labels: %i" % len(unique_labels))
-        for label_key, label_value in tp_counter_dict.items():
+        for label_key, label_pred_value in tp_counter_dict.items():
             #self.logger.debug(item)
             #self.logger.info("%s : %s " % (item, tp_counter_dict[item]))
-            self.logger.info("%s : %s " % (label_key, label_value))
-            self.logger.info("--> True +ve Rate/RECALL/Sensitivity - %s: %s = %.3f%% " %
-                              (label_key, (label_value / Counter(all_true_labels)[label_key]),
-                                           (label_value / Counter(all_true_labels)[label_key]*100)))
-
-
-            # col_titles.append(label_key)
-            # pred_error_count = 0
-            # col_1 = label_key
-            # predictions_per_row = []
-            # predictions_per_row.append(col_1)
-            # # idx_counter += 1
-            # pred_val = 0
-            # for idx_ctr in range(len(col_titles)):
-            #     pred_val = 0
-            #     if idx_ctr == len(col_titles)-2:    # -2 because of the first entry as the row index name/label
-            #         #pred_val = label_value
-            #         predictions_per_row.append(label_value)
-            #     else:
-            #         # Check for other error rates
-            #         for key_name, error_item_value in error_counts_dict.items():
-            #             if label_key in key_name.split("-as-")[1]:
-            #                 # pred_error_count += error_counts_dict[error_item]
-            #                 #pred_val = error_item_value
-            #                 predictions_per_row.append(error_item_value)
-            #             else:
-            #                 pass
-                            #pred_val = 0
-                            # predictions_per_row.append(0)
-
-                # predictions_per_row.append(pred_val)
-
-
-            # for idx, lbl in enumerate(col_titles):
-            #     if lbl == label_value:
-            #predictions_per_row.append(label_value)
-                #else:
-            # pred_val = 0
-            # for key, error_item_value in error_counts_dict.items():
-            #     if label_key in key.split("-as-")[0]:
-            #         # pred_error_count += error_counts_dict[error_item]
-            #         pred_val = error_item_value
-            #     else:
-            #         pred_val = 0
-            #
-            #     predictions_per_row.append(pred_val)
-
-
-
-
-            #conf_matrix_data.append(predictions_per_row)
-
-
-
-
+            self.logger.info("%s : %s " % (label_key, label_pred_value))
+            actual_specific_lbl_count = Counter(all_actual_labels)[label_key]
+            self.logger.info("--> True Pos+ Rate/ RECALL/ Sensitivity [%s]: %.5f = %.2f%% " %
+                              (label_key, (label_pred_value / actual_specific_lbl_count),
+                                           (label_pred_value / actual_specific_lbl_count*100)))
+            # For False Negatives
+            fpos_count = 0
+            spec_label_pred_counts = 0 # For calculating the Precision later
+            for error_lbl in error_counts_dict.keys():
+                # self.logger.debug("Current Label: %s" % label_key)
+                # self.logger.debug("Current 1st part of Error-Label: %s" % error_lbl.split("-as-")[0])
+                if label_key == error_lbl.split("-as-")[0]:
+                    fpos_count += int(error_counts_dict[error_lbl])
+                    #self.logger.debug("Current False Pos sum: %i" % fpos_count)
+                # For Counting the Precision Later
+                if label_key == error_lbl.split("-as-")[1]:
+                    spec_label_pred_counts += int(error_counts_dict[error_lbl])
+                    self.logger.debug("Current False Pos sum: %i" % fpos_count)
+            self.logger.debug("False Positive Sum: %s : %i" % (label_key, fpos_count))
+            all_actual_negatives = all_labels_total - actual_specific_lbl_count
+            false_neg_rate = fpos_count / all_actual_negatives
+            self.logger.info("--> FALSE NEGATIVE RATE [%s]: %.5f = %.2f%%" % (label_key, false_neg_rate, false_neg_rate * 100))
 
         # Specificity (True Negative Rate)
+            correctly_predicted_no = all_true_pos - tp_counter_dict[label_key]      # True Negatives
+            self.logger.debug("Number predicted no per class [%s]: %i" % (label_key, correctly_predicted_no))
+            true_neg_rate = correctly_predicted_no/all_actual_negatives
+            self.logger.info("--> TRUE NEGATIVE RATE/ Specificity [%s]: %.5f = %.2f%%" % (label_key, true_neg_rate, true_neg_rate * 100))
 
         # Precision (Positive predictive value)
-
+            #Get from error counts how many times another label was predicted as label in consideration
+            total_predictions_per_label = label_pred_value + spec_label_pred_counts
+            self.logger.debug("Total Predictions of a Certain Label [%s]: %i" % (label_key, total_predictions_per_label))
+            precision = label_pred_value/ total_predictions_per_label
+            self.logger.info("--> PRECISION [%s] : %.5f = %.2f%%" % (label_key, precision, precision * 100))
 
 
         #self.logger.debug(item[str(item)])
